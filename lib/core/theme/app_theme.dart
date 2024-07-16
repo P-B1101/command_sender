@@ -4,16 +4,22 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.white,
-        brightness: Brightness.dark,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: Colors.white,
+      brightness: Brightness.dark,
+    ),
+    useMaterial3: true,
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Color(0xFFFFFFFF),
       ),
-      useMaterial3: true,
-      textTheme: const TextTheme(
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: Color(0xFFFFFFFF),
-        ),
-      ));
+      bodySmall: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFFFFFFFF),
+      ),
+    ),
+  );
 }

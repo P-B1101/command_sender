@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:overlay_app/core/theme/app_theme.dart';
 
 import 'view/page/home_page.dart';
-import 'view/page/massenger_chat_header.dart';
+import 'view/page/chat_header_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,9 +13,10 @@ void main() {
 @pragma("vm:entry-point")
 void overlayMain() {
   runApp(
-    const MaterialApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MessangerChatHead(),
+      theme: AppTheme.theme,
+      home: const MessangerChatHead(),
     ),
   );
 }

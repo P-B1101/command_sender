@@ -6,6 +6,7 @@ import 'package:device_screenshot/device_screenshot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:overlay_app/controller/send_command_controller.dart';
+import 'package:overlay_app/model/command.dart';
 import 'package:universal_socket/universal_socket.dart';
 
 class HomePage extends StatefulWidget {
@@ -98,8 +99,8 @@ class _HomePageState extends State<HomePage> {
       flag: OverlayFlag.defaultFlag,
       positionGravity: PositionGravity.auto,
       alignment: OverlayAlignment.topRight,
-      height: 200,
-      width: size.width.toInt(),
+      height: size.height.toInt(),
+      width: size.width.toInt() * 2,
       startPosition: const OverlayPosition(0, 42),
     );
   }
@@ -113,12 +114,25 @@ class _HomePageState extends State<HomePage> {
 
 void _handleMessage(String message) async {
   Logger.log('message from overlay: $message');
-  if (message == 'TAKE_SCREEN_SHOT') {
-    final uri = await DeviceScreenshot.instance.takeScreenshot();
-    if (uri == null) return;
-    final file = File.fromUri(uri);
-    _sendCommandController.uploadFile(file).listen((progress) {
-      Logger.log('${(progress % 100).toStringAsFixed(2)}% uploaded');
-    });
+  final command = Command.fromString(message);
+  switch (command) {
+    case Command.takeScreenShot:
+      final uri = await DeviceScreenshot.instance.takeScreenshot();
+      if (uri == null) return;
+      final file = File.fromUri(uri);
+      _sendCommandController.uploadFile(file).listen((progress) {
+        Logger.log('${(progress * 100).toStringAsFixed(2)}% uploaded');
+      });
+      break;
+    case Command.openCamera:
+    case Command.startRecording:
+    case Command.stopRecording:
+      await _sendCommandController.sendCommand(command);
+      break;
+    case Command.authentication:
+    case Command.token:
+    case Command.sendVideo:
+    case Command.unknown:
+      break;
   }
 }
