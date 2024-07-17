@@ -1,4 +1,4 @@
-package com.example.overlay_app
+package com.iclassifier.overlay_app
 
 import io.flutter.embedding.android.FlutterActivity
 
