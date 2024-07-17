@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
     await _startOverWindow();
   }
 
-  Future<void> _startOverWindow() async {
+  static Future<void> _startOverWindow() async {
     final status = await FlutterOverlayWindow.isPermissionGranted();
     Logger.log('Is Permission Granted: $status');
     if (!status) {
@@ -89,9 +89,7 @@ class _HomePageState extends State<HomePage> {
       Logger.log('Overlay window is not active');
       return;
     }
-    if (!mounted) return;
     Logger.log('Start show overlay window');
-    final size = MediaQuery.sizeOf(context);
     await FlutterOverlayWindow.showOverlay(
       enableDrag: true,
       overlayTitle: 'iClassifier',
@@ -99,8 +97,8 @@ class _HomePageState extends State<HomePage> {
       flag: OverlayFlag.defaultFlag,
       positionGravity: PositionGravity.auto,
       alignment: OverlayAlignment.topRight,
-      height: size.height.toInt(),
-      width: size.width.toInt() * 2,
+      height: _height,
+      width: _width,
       startPosition: const OverlayPosition(0, 42),
     );
   }
@@ -110,29 +108,39 @@ class _HomePageState extends State<HomePage> {
     FlutterOverlayWindow.closeOverlay();
     _sendCommandController.disconnect();
   }
-}
 
-void _handleMessage(String message) async {
-  Logger.log('message from overlay: $message');
-  final command = Command.fromString(message);
-  switch (command) {
-    case Command.takeScreenShot:
-      final uri = await DeviceScreenshot.instance.takeScreenshot();
-      if (uri == null) return;
-      final file = File.fromUri(uri);
-      _sendCommandController.uploadFile(file).listen((progress) {
-        Logger.log('${(progress * 100).toStringAsFixed(2)}% uploaded');
-      });
-      break;
-    case Command.openCamera:
-    case Command.startRecording:
-    case Command.stopRecording:
-      await _sendCommandController.sendCommand(command);
-      break;
-    case Command.authentication:
-    case Command.token:
-    case Command.sendVideo:
-    case Command.unknown:
-      break;
+  static void _handleMessage(String message) async {
+    Logger.log('message from overlay: $message');
+    final command = Command.fromString(message);
+    switch (command) {
+      case Command.takeScreenShot:
+        _takeScreenshot();
+        break;
+      case Command.openCamera:
+      case Command.startRecording:
+      case Command.stopRecording:
+        await _sendCommandController.sendCommand(command);
+        break;
+      case Command.authentication:
+      case Command.token:
+      case Command.sendVideo:
+      case Command.unknown:
+        break;
+    }
   }
+
+  static Future<void> _takeScreenshot() async {
+    await FlutterOverlayWindow.closeOverlay();
+    await Future.delayed(const Duration(milliseconds: 100));
+    final uri = await DeviceScreenshot.instance.takeScreenshot();
+    _startOverWindow();
+    if (uri == null) return;
+    final file = File.fromUri(uri);
+    _sendCommandController.uploadFile(file).listen((progress) {
+      Logger.log('${(progress * 100).toStringAsFixed(2)}% uploaded');
+    });
+  }
+
+  static int get _width => 800;
+  static int get _height => 800;
 }
