@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:overlay_app/core/utils/utils.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
@@ -61,18 +62,23 @@ class _HomePageState extends State<HomePage> {
                 onPressed: _onStopClick,
                 child: const Text('Stop'),
               ),
+              const SizedBox(height: 12),
               const Divider(),
-              const SizedBox(height: 24),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: StreamBuilder<String>(
-                      initialData: '',
-                      stream: LogObserver.instance.observer,
-                      builder: (context, snapshot) => Text(
-                        snapshot.data ?? '',
-                        style: Theme.of(context).textTheme.bodyMedium,
+              const SizedBox(height: 12),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    reverse: true,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: StreamBuilder<String>(
+                        initialData: '',
+                        stream: LogObserver.instance.observer,
+                        builder: (context, snapshot) => Text(
+                          snapshot.data ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
                     ),
                   ),
@@ -87,6 +93,7 @@ class _HomePageState extends State<HomePage> {
 
   void _handleInitState() {
     if (_port != null) return;
+    _checkForUsibility();
     IsolateNameServer.registerPortWithName(
       _receivePort.sendPort,
       _kPortNameHome,
@@ -98,6 +105,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onStartClick() async {
+    if (await FlutterOverlayWindow.isActive()) {
+      Logger.log('Overlay window is already active');
+      return;
+    }
+    if (!mounted) return;
     final visitId = await PopUpController.showVisitIdPopup(context);
     if (visitId == null) return;
     await _sendCommandController.connect(visitId);
@@ -127,7 +139,7 @@ class _HomePageState extends State<HomePage> {
   void _listenToSocket(StringCommunication message) {
     switch (message.getCommand) {
       case Command.startRecording:
-        _sendCommand(HeaderCommand.startRecordingLoading);
+        _sendCommand(HeaderCommand.startRecordingDone);
         break;
       case Command.stopRecording:
         _sendCommand(HeaderCommand.stopRecordingDone);
@@ -151,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     _port?.send(command);
   }
 
-  static Future<void> _startOverWindow() async {
+  Future<void> _checkForUsibility() async {
     final status = await FlutterOverlayWindow.isPermissionGranted();
     Logger.log('Is Permission Granted: $status');
     if (!status) {
@@ -162,21 +174,30 @@ class _HomePageState extends State<HomePage> {
       }
     }
     if (await FlutterOverlayWindow.isActive()) {
-      Logger.log('Overlay window is not active');
+      Logger.log('Overlay window is already active');
       return;
     }
+  }
+
+  Future<void> _startOverWindow() async {
+    await _checkForUsibility();
     Logger.log('Start show overlay window');
+    if (!mounted) return;
+    final size = MediaQuery.sizeOf(context);
+    final ratio = MediaQuery.devicePixelRatioOf(context);
     await FlutterOverlayWindow.showOverlay(
       enableDrag: true,
       overlayTitle: 'iClassifier',
       overlayContent: 'iClassifier command sender',
-      flag: OverlayFlag.defaultFlag,
-      positionGravity: PositionGravity.auto,
+      flag: OverlayFlag.focusPointer,
+      positionGravity: PositionGravity.left,
       alignment: OverlayAlignment.topRight,
-      height: _height,
-      width: _width,
-      startPosition: const OverlayPosition(0, 42),
+      width: (Utils.headerInitialWidth * ratio).toInt(),
+      height: (Utils.headerInitialHeight * ratio).toInt(),
+      startPosition: const OverlayPosition(0, 24),
     );
+    _sendStringCommand(
+        '${HeaderCommand.size.stringValue}:${size.width}:${size.height}');
   }
 
   void _onStopClick() {
@@ -190,7 +211,4 @@ class _HomePageState extends State<HomePage> {
     if (_controller.isClosed) return;
     _controller.add(message);
   }
-
-  static int get _width => 800;
-  static int get _height => 800;
 }

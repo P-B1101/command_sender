@@ -1,4 +1,5 @@
 enum HeaderCommand {
+  size,
   refId,
   startRecordingLoading,
   startRecordingDone,
@@ -7,6 +8,7 @@ enum HeaderCommand {
   unknown;
 
   String get stringValue => switch (this) {
+        size => 'SIZE',
         refId => 'REF_ID',
         startRecordingLoading => 'START_RECORDING_LOADING',
         startRecordingDone => 'START_RECORDING_DONE',
@@ -20,6 +22,10 @@ enum HeaderCommand {
         'START_RECORDING_DONE' => startRecordingDone,
         'STOP_RECORDING_LOADING' => stopRecordingLoading,
         'STOP_RECORDING_DONE' => stopRecordingDone,
-        _ => value.startsWith('REF_IF') ? refId : unknown,
+        _ => value.startsWith('REF_IF')
+            ? refId
+            : value.startsWith('SIZE')
+                ? size
+                : unknown,
       };
 }

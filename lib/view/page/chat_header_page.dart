@@ -2,6 +2,8 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:overlay_app/core/utils/utils.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
@@ -28,6 +30,9 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   SendPort? _port;
   bool _isOpen = false;
   String? _refId;
+  Size? _size;
+  final _defaultSize = const Size(411, 800);
+  bool _showContent = true;
 
   @override
   void initState() {
@@ -45,80 +50,84 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-      opacity: _isOpen ? 1 : .5,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: AlignmentDirectional.topEnd,
-        children: [
-          AnimatedPositionedDirectional(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
-            end: _isOpen ? (_buttonSize * 1.25) : -16,
-            top: _isOpen
-                ? (_childButtonSize * 2) + (_childButtonPadding)
-                : _topPadding,
-            child: ValueListenableBuilder<bool>(
-              valueListenable: _startLoading,
-              builder: (context, value, child) => _ButtonWidget(
-                isLoading: value,
-                size: _childButtonSize,
-                type: ButtonType.startRecording,
-                onTap: _onStartRecording,
-              ),
-            ),
-          ),
-          AnimatedPositionedDirectional(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
-            end: _isOpen ? (_buttonSize * .75) : -16,
-            top: _isOpen
-                ? (_childButtonSize * 3) + (_childButtonPadding * 2)
-                : _topPadding,
-            child: ValueListenableBuilder<bool>(
-              valueListenable: _startLoading,
-              builder: (context, value, child) => _ButtonWidget(
-                isLoading: value,
-                size: _childButtonSize,
-                type: ButtonType.stopRecording,
-                onTap: _onStopRecording,
-              ),
-            ),
-          ),
-          AnimatedPositionedDirectional(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
-            end: _isOpen ? _startPadding : -16,
-            top: _topPadding,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.ease,
-              height: _buttonSize,
-              width: _buttonSize,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                elevation: 0.0,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: _onTap,
-                  child: Center(
-                    child: ClipOval(
-                      child: Image.asset('assets/image/logo.jpg'),
+    return !_showContent
+        ? const SizedBox()
+        : Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: Container(
+              color: Colors.amber.withOpacity(.25),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                opacity: _isOpen ? 1 : .5,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: AlignmentDirectional.topEnd,
+                  children: [
+                    AnimatedPositionedDirectional(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                      end: _isOpen ? _buttonSize + 12 : -16,
+                      top: _isOpen ? 0 : _topPadding,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _startLoading,
+                        builder: (context, value, child) => _ButtonWidget(
+                          isLoading: value,
+                          size: _childButtonSize,
+                          type: ButtonType.startRecording,
+                          onTap: _onStartRecording,
+                        ),
+                      ),
                     ),
-                  ),
+                    AnimatedPositionedDirectional(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                      end: _isOpen ? _buttonSize + 12 : -16,
+                      top: _isOpen ? _childButtonSize + 8 : _topPadding,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _stopLoading,
+                        builder: (context, value, child) => _ButtonWidget(
+                          isLoading: value,
+                          size: _childButtonSize,
+                          type: ButtonType.stopRecording,
+                          onTap: _onStopRecording,
+                        ),
+                      ),
+                    ),
+                    AnimatedPositionedDirectional(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.ease,
+                      end: _isOpen ? _startPadding : -16,
+                      top: _topPadding,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.ease,
+                        height: _buttonSize,
+                        width: _buttonSize,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          elevation: 0.0,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: _onTap,
+                            child: Center(
+                              child: ClipOval(
+                                child: Image.asset('assets/image/logo.jpg'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 
   void _handleInitState() {
@@ -137,6 +146,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     Logger.log('message from home: $message');
     final loading = HeaderCommand.fromString(message);
     switch (loading) {
+      case HeaderCommand.size:
+        final temp = message.split(':');
+        _size = Size(double.parse(temp[1]), double.parse(temp[2]));
+        break;
       case HeaderCommand.startRecordingLoading:
         _startLoading.value = true;
         break;
@@ -180,18 +193,48 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   // }
 
   void _onStartRecording() async {
+    // final size = MediaQuery.sizeOf(context);
+    // print('size: $size');
+    setState(() {
+      _showContent = false;
+    });
+    await Future.delayed(const Duration(milliseconds: 100));
+    await FlutterOverlayWindow.resizeOverlay(
+      _size?.width.toInt() ?? _defaultSize.width.toInt(),
+      _size?.height.toInt() ?? _defaultSize.height.toInt(),
+      false,
+    );
+    await Future.delayed(const Duration(milliseconds: 100));
+    setState(() {
+      _showContent = true;
+    });
+    if (!mounted) return;
     final cowAndRefId = await PopUpController.showCowIdPopup(
       context: context,
       refId: _refId,
     );
+
+    setState(() {
+      _showContent = false;
+    });
+    await Future.delayed(const Duration(milliseconds: 100));
+    await FlutterOverlayWindow.resizeOverlay(
+      Utils.headerInitialWidth,
+      Utils.headerInitialHeight,
+      true,
+    );
+    await Future.delayed(const Duration(milliseconds: 200));
+    setState(() {
+      _showContent = true;
+    });
     if (cowAndRefId?.serialize == null) return;
     _sendStringCommand(
         '${Command.startRecording.stringValue}:${cowAndRefId!.serialize}');
+    _refId = null;
   }
 
   void _onStopRecording() {
     _sendCommand(Command.stopRecording);
-    _refId = null;
   }
 
   static void _handleMessage(String message) async {
@@ -202,8 +245,8 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   double get _buttonSize => 56;
   double get _childButtonSize => 48;
   double get _startPadding => 8;
-  double get _topPadding => 75;
-  double get _childButtonPadding => 8;
+  double get _topPadding => 24;
+  // double get _childButtonPadding => 8;
 }
 
 class _ButtonWidget extends StatelessWidget {

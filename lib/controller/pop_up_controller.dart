@@ -9,7 +9,7 @@ class PopUpController {
   static Future<String?> showVisitIdPopup(BuildContext context) async {
     final result = await showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(.08),
+      barrierColor: Colors.black.withOpacity(.25),
       builder: (context) => const Dialog(
         backgroundColor: Colors.transparent,
         child: FarmIdInputPopup(),
@@ -25,7 +25,7 @@ class PopUpController {
   }) async {
     final result = await showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(.08),
+      barrierColor: Colors.black.withOpacity(.25),
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: CowIdInputPopup(refId: refId),

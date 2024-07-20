@@ -76,7 +76,8 @@ class SendCommandController {
   }
 
   bool _handleIp(String message) {
-    final temp = message.split(':');
+    if (!message.startsWith('||') && !message.endsWith('||')) return false;
+    final temp = message.substring(2, message.length - 2).split(':');
     if (temp.length != 2) return false;
     _address = temp[0];
     _port = int.parse(temp[1]);

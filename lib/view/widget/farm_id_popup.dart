@@ -10,11 +10,13 @@ class FarmIdInputPopup extends StatefulWidget {
 class _FarmIdInputPopupState extends State<FarmIdInputPopup> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
+  final _errorNotifier = ValueNotifier<bool>(false);
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _errorNotifier.dispose();
     super.dispose();
   }
 
@@ -42,7 +44,9 @@ class _FarmIdInputPopupState extends State<FarmIdInputPopup> {
           _titleWidget,
           const SizedBox(height: 16),
           _inputWidget,
-          const SizedBox(height: 32),
+          const SizedBox(height: 8),
+          _errorWidget,
+          const SizedBox(height: 8),
           _buttonWidget,
           const SizedBox(height: 16),
         ],
@@ -51,7 +55,7 @@ class _FarmIdInputPopupState extends State<FarmIdInputPopup> {
   }
 
   Widget get _titleWidget => Text(
-        'Enter farm visit id',
+        'Enter Farm\'s Visit ID',
         style: Theme.of(context).textTheme.bodyMedium,
       );
 
@@ -61,16 +65,60 @@ class _FarmIdInputPopupState extends State<FarmIdInputPopup> {
           controller: _controller,
           focusNode: _focusNode,
           textAlign: TextAlign.center,
+          onChanged: (value) {
+            if (value.isNotEmpty) _errorNotifier.value = false;
+          },
+        ),
+      );
+
+  Widget get _errorWidget => SizedBox(
+        width: double.infinity,
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ValueListenableBuilder(
+              valueListenable: _errorNotifier,
+              builder: (context, value, child) => AnimatedCrossFade(
+                duration: const Duration(milliseconds: 300),
+                sizeCurve: Curves.ease,
+                firstCurve: Curves.ease,
+                secondCurve: Curves.ease,
+                crossFadeState: value
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: SizedBox(
+                  key: const ValueKey(0),
+                  width: double.infinity,
+                  child: Text(
+                    'Farm visit ID is needed.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.deepOrange,
+                        ),
+                  ),
+                ),
+                secondChild: const SizedBox(
+                  key: ValueKey(1),
+                  width: double.infinity,
+                ),
+              ),
+            ),
+          ),
         ),
       );
 
   Widget get _buttonWidget => MaterialButton(
         onPressed: _onClick,
-        child: const Text('Start'),
+        color: Theme.of(context).colorScheme.secondary,
+        child: const Text('Start App'),
       );
 
   void _onClick() {
-    if (_controller.text.isEmpty) return;
+    if (_controller.text.isEmpty) {
+      _errorNotifier.value = true;
+      return;
+    }
     Navigator.of(context).pop(_controller.text);
   }
 }

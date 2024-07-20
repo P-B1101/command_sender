@@ -10,14 +10,12 @@ class CircularLoadingWidget extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.size = 24,
     this.color,
-    this.strokeWidth = 3,
+    this.strokeWidth = 2.5,
   });
 
   @override
   Widget build(BuildContext context) {
-    final valueColor = AlwaysStoppedAnimation<Color>(
-      color ?? Theme.of(context).primaryColor,
-    );
+    final valueColor = AlwaysStoppedAnimation<Color>(color ?? Colors.white);
     return SizedBox.square(
       dimension: size,
       child: Padding(
