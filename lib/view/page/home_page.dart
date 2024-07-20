@@ -4,12 +4,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:overlay_app/core/utils/utils.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
 import '../../controller/pop_up_controller.dart';
 import '../../controller/send_command_controller.dart';
+import '../../core/utils/utils.dart';
 import '../../model/command.dart';
 import '../../model/loading_command.dart';
 import '../../model/string_communication.dart';

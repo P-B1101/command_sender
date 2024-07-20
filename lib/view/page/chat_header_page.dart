@@ -54,77 +54,74 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
         ? const SizedBox()
         : Align(
             alignment: AlignmentDirectional.topEnd,
-            child: Container(
-              color: Colors.amber.withOpacity(.25),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                opacity: _isOpen ? 1 : .5,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: AlignmentDirectional.topEnd,
-                  children: [
-                    AnimatedPositionedDirectional(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                      end: _isOpen ? _buttonSize + 12 : -16,
-                      top: _isOpen ? 0 : _topPadding,
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: _startLoading,
-                        builder: (context, value, child) => _ButtonWidget(
-                          isLoading: value,
-                          size: _childButtonSize,
-                          type: ButtonType.startRecording,
-                          onTap: _onStartRecording,
-                        ),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.ease,
+              opacity: _isOpen ? 1 : .5,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: AlignmentDirectional.topEnd,
+                children: [
+                  AnimatedPositionedDirectional(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    end: _isOpen ? _buttonSize + 12 : -16,
+                    top: _isOpen ? 0 : _topPadding,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _startLoading,
+                      builder: (context, value, child) => _ButtonWidget(
+                        isLoading: value,
+                        size: _childButtonSize,
+                        type: ButtonType.startRecording,
+                        onTap: _onStartRecording,
                       ),
                     ),
-                    AnimatedPositionedDirectional(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                      end: _isOpen ? _buttonSize + 12 : -16,
-                      top: _isOpen ? _childButtonSize + 8 : _topPadding,
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: _stopLoading,
-                        builder: (context, value, child) => _ButtonWidget(
-                          isLoading: value,
-                          size: _childButtonSize,
-                          type: ButtonType.stopRecording,
-                          onTap: _onStopRecording,
-                        ),
+                  ),
+                  AnimatedPositionedDirectional(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    end: _isOpen ? _buttonSize + 12 : -16,
+                    top: _isOpen ? _childButtonSize + 8 : _topPadding,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _stopLoading,
+                      builder: (context, value, child) => _ButtonWidget(
+                        isLoading: value,
+                        size: _childButtonSize,
+                        type: ButtonType.stopRecording,
+                        onTap: _onStopRecording,
                       ),
                     ),
-                    AnimatedPositionedDirectional(
+                  ),
+                  AnimatedPositionedDirectional(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    end: _isOpen ? _startPadding : -16,
+                    top: _topPadding,
+                    child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.ease,
-                      end: _isOpen ? _startPadding : -16,
-                      top: _topPadding,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                        height: _buttonSize,
-                        width: _buttonSize,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          elevation: 0.0,
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: _onTap,
-                            child: Center(
-                              child: ClipOval(
-                                child: Image.asset('assets/image/logo.jpg'),
-                              ),
+                      height: _buttonSize,
+                      width: _buttonSize,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        elevation: 0.0,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: _onTap,
+                          child: Center(
+                            child: ClipOval(
+                              child: Image.asset('assets/image/logo.jpg'),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
@@ -184,17 +181,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     _port?.send(command);
   }
 
-  // void _onTakeScreenShot() {
-  //   _sendCommand(Command.takeScreenShot);
-  // }
-
-  // void _onOpenCamera() {
-  //   _sendCommand(Command.openCamera);
-  // }
-
   void _onStartRecording() async {
-    // final size = MediaQuery.sizeOf(context);
-    // print('size: $size');
     setState(() {
       _showContent = false;
     });
@@ -246,7 +233,6 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   double get _childButtonSize => 48;
   double get _startPadding => 8;
   double get _topPadding => 24;
-  // double get _childButtonPadding => 8;
 }
 
 class _ButtonWidget extends StatelessWidget {
