@@ -21,5 +21,16 @@ class AppTheme {
         color: Color(0xFFFFFFFF),
       ),
     ),
+    inputDecorationTheme: const InputDecorationTheme(
+      filled: true,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      border: InputBorder.none,
+      errorBorder: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      disabledBorder: InputBorder.none,
+      focusedErrorBorder: InputBorder.none,
+      isDense: false,
+    ),
   );
 }

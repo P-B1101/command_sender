@@ -1,12 +1,16 @@
-import 'dart:io';
+import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:device_screenshot/device_screenshot.dart';
+// import 'package:device_screenshot/device_screenshot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:overlay_app/controller/pop_up_controller.dart';
 import 'package:overlay_app/controller/send_command_controller.dart';
 import 'package:overlay_app/model/command.dart';
+import 'package:overlay_app/model/loading_command.dart';
+import 'package:overlay_app/model/string_communication.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,9 +24,11 @@ final _sendCommandController = SendCommandController();
 
 class _HomePageState extends State<HomePage> {
   static const String _kPortNameHome = 'UI';
+  static const String _kPortNameHeader = 'HEADER';
   final _receivePort = ReceivePort();
-  SendPort? homePort;
-  // final _sendCommandController = SendCommandController();
+  SendPort? _port;
+  StreamSubscription<StringCommunication>? _sub;
+  static final _controller = BehaviorSubject<String>();
 
   @override
   void initState() {
@@ -33,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _onStopClick();
+    _controller.close();
     super.dispose();
   }
 
@@ -59,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleInitState() {
-    if (homePort != null) return;
+    if (_port != null) return;
     IsolateNameServer.registerPortWithName(
       _receivePort.sendPort,
       _kPortNameHome,
@@ -67,12 +74,52 @@ class _HomePageState extends State<HomePage> {
     _receivePort.listen((message) {
       _handleMessage(message);
     });
+    _controller.listen(_listenToHeader);
   }
 
   void _onStartClick() async {
-    DeviceScreenshot.instance.requestMediaProjection();
-    await _sendCommandController.connect();
+    final visitId = await PopUpController.showVisigIdPopup(context);
+    if (visitId == null) return;
+    await _sendCommandController.connect(visitId);
+    _sendCommandController.listenForCommand().listen(_listenToSocket);
     await _startOverWindow();
+  }
+
+  void _listenToHeader(String message) async {
+    Logger.log('message from header: $message');
+    final command = Command.fromString(message);
+    switch (command) {
+      case Command.startRecording:
+        await _sendCommandController.sendCommand(command);
+        _sendCommand(LoadingCommand.startRecordingLoading);
+        break;
+      case Command.stopRecording:
+        await _sendCommandController.sendCommand(command);
+        _sendCommand(LoadingCommand.stopRecordingLoading);
+        break;
+      case Command.token:
+      case Command.unknown:
+        break;
+    }
+  }
+
+  void _listenToSocket(StringCommunication message) {
+    switch (message.getCommand) {
+      case Command.startRecording:
+        _sendCommand(LoadingCommand.startRecordingLoading);
+        break;
+      case Command.stopRecording:
+        _sendCommand(LoadingCommand.stopRecordingDone);
+        break;
+      case Command.unknown:
+      case Command.token:
+        break;
+    }
+  }
+
+  void _sendCommand(LoadingCommand command) {
+    _port ??= IsolateNameServer.lookupPortByName(_kPortNameHeader);
+    _port?.send(command.stringValue);
   }
 
   static Future<void> _startOverWindow() async {
@@ -104,41 +151,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onStopClick() {
-    DeviceScreenshot.instance.stopMediaProjectionService();
     FlutterOverlayWindow.closeOverlay();
+    _sub?.cancel();
+    _sub = null;
     _sendCommandController.disconnect();
   }
 
   static void _handleMessage(String message) async {
-    Logger.log('message from overlay: $message');
-    final command = Command.fromString(message);
-    switch (command) {
-      case Command.takeScreenShot:
-        _takeScreenshot();
-        break;
-      case Command.openCamera:
-      case Command.startRecording:
-      case Command.stopRecording:
-        await _sendCommandController.sendCommand(command);
-        break;
-      case Command.authentication:
-      case Command.token:
-      case Command.sendVideo:
-      case Command.unknown:
-        break;
-    }
-  }
-
-  static Future<void> _takeScreenshot() async {
-    await FlutterOverlayWindow.closeOverlay();
-    await Future.delayed(const Duration(milliseconds: 100));
-    final uri = await DeviceScreenshot.instance.takeScreenshot();
-    _startOverWindow();
-    if (uri == null) return;
-    final file = File.fromUri(uri);
-    _sendCommandController.uploadFile(file).listen((progress) {
-      Logger.log('${(progress * 100).toStringAsFixed(2)}% uploaded');
-    });
+    if (_controller.isClosed) return;
+    _controller.add(message);
   }
 
   static int get _width => 800;

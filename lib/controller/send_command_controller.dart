@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:overlay_app/model/string_communication.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
@@ -8,6 +9,7 @@ import '../model/command.dart';
 
 const _udpPort = 1101;
 const _clientType = 'ANDROID_INTERFACE';
+const _visitId = 'VISIT_ID:';
 
 class SendCommandController {
   String _address = '';
@@ -23,7 +25,7 @@ class SendCommandController {
       // this._preferences,
       );
 
-  Future<void> connect() async {
+  Future<void> connect(String visitId) async {
     Logger.log('Start Listening on port $_udpPort');
     await RawDatagramSocket.bind(InternetAddress.anyIPv4, _udpPort)
         .then((socket) {
@@ -37,7 +39,7 @@ class SendCommandController {
           Logger.log('UDP Received: $_address:$_port');
           socket.close();
           _udpSub?.cancel();
-          _connectTo();
+          _connectTo(visitId);
         }
       });
     });
@@ -49,17 +51,13 @@ class SendCommandController {
     _controller.close();
   }
 
-  Stream<Command> listenForCommand() => _controller.stream
+  Stream<StringCommunication> listenForCommand() => _controller.stream
       .skipWhile((element) => switch (element.command) {
             TCPCommand.sendMessage => false,
-            TCPCommand.sendFile ||
-            TCPCommand.unknown ||
-            TCPCommand.authentication ||
-            TCPCommand.token ||
-            TCPCommand.eom =>
-              true,
+            TCPCommand.sendFile || TCPCommand.unknown => true,
           })
-      .map<Command>((event) => Command.fromString(event.body as String));
+      .map<StringCommunication>(
+          (event) => StringCommunication(event.body as String));
 
   Future<void> sendCommand(Command command) async {
     if (_socket == null) return;
@@ -74,7 +72,7 @@ class SendCommandController {
     return true;
   }
 
-  void _connectTo() async {
+  void _connectTo(String visitId) async {
     if (_port == null) return;
     if (_address.isEmpty) return;
     final config = ConnectionConfig(
@@ -89,7 +87,9 @@ class SendCommandController {
         return;
       }
       _listenToServer();
-      sendMessage(_clientType);
+      await sendMessage(_clientType);
+      await Future.delayed(const Duration(seconds: 1));
+      await sendMessage('$_visitId$visitId');
       Logger.log('Start listening...');
     } catch (error) {
       Logger.log(error);

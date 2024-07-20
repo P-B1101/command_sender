@@ -49,15 +49,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.8"
-  device_screenshot:
+  equatable:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: c3090eb3c7cca334c8bd995b2addb61f2a8533a5
-      url: "https://github.com/P-B1101/device_screenshot.git"
-    source: git
-    version: "0.0.9"
+      name: equatable
+      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -156,14 +155,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.9.0"
-  plugin_platform_interface:
-    dependency: transitive
-    description:
-      name: plugin_platform_interface
-      sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.1.8"
   rxdart:
     dependency: "direct main"
     description:
@@ -230,7 +221,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3276a664cf9a0fd4c5518f646eb981f0efb2e833"
+      resolved-ref: a203cafcf157ca8c928c73241e334e9e48656c51
       url: "https://github.com/P-B1101/universal_socket.git"
     source: git
     version: "0.0.1"
@@ -251,5 +242,5 @@ packages:
     source: hosted
     version: "14.2.1"
 sdks:
-  dart: ">=3.4.3 <4.0.0"
+  dart: ">=3.4.1 <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"
