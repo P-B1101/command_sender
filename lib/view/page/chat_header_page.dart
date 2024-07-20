@@ -2,13 +2,14 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:overlay_app/model/command.dart';
-import 'package:overlay_app/model/loading_command.dart';
-import 'package:overlay_app/view/widget/circular_loading_widget.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
+import '../../controller/pop_up_controller.dart';
 import '../../model/button_type.dart';
+import '../../model/command.dart';
+import '../../model/loading_command.dart';
+import '../widget/circular_loading_widget.dart';
 
 class MessangerChatHead extends StatefulWidget {
   const MessangerChatHead({super.key});
@@ -26,6 +27,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   static final _controller = BehaviorSubject<String>();
   SendPort? _port;
   bool _isOpen = false;
+  String? _refId;
 
   @override
   void initState() {
@@ -133,21 +135,25 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
 
   void _listenForMessage(String message) {
     Logger.log('message from home: $message');
-    final loading = LoadingCommand.fromString(message);
+    final loading = HeaderCommand.fromString(message);
     switch (loading) {
-      case LoadingCommand.startRecordingLoading:
+      case HeaderCommand.startRecordingLoading:
         _startLoading.value = true;
         break;
-      case LoadingCommand.startRecordingDone:
+      case HeaderCommand.startRecordingDone:
         _startLoading.value = false;
         break;
-      case LoadingCommand.stopRecordingLoading:
+      case HeaderCommand.stopRecordingLoading:
         _stopLoading.value = true;
         break;
-      case LoadingCommand.stopRecordingDone:
+      case HeaderCommand.stopRecordingDone:
         _stopLoading.value = false;
         break;
-      case LoadingCommand.unknown:
+      case HeaderCommand.refId:
+        _refId =
+            message.substring(message.indexOf('${loading.stringValue}:') + 1);
+        break;
+      case HeaderCommand.unknown:
         break;
     }
   }
@@ -171,7 +177,12 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   //   _sendCommand(Command.openCamera);
   // }
 
-  void _onStartRecording() {
+  void _onStartRecording() async {
+    final cowAndRefId = await PopUpController.showCowIdPopup(
+      context: context,
+      refId: _refId,
+    );
+    if (cowAndRefId?.serialize == null) return;
     _sendCommand(Command.startRecording);
   }
 

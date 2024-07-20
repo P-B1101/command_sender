@@ -9,4 +9,6 @@ class StringCommunication extends Communication {
   List<Object?> get props => [data];
 
   Command get getCommand => Command.fromString(data);
+
+  String? get getRefId => getCommand == Command.refId ? data : null;
 }

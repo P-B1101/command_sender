@@ -26,23 +26,31 @@ class SendCommandController {
       );
 
   Future<void> connect(String visitId) async {
-    Logger.log('Start Listening on port $_udpPort');
-    await RawDatagramSocket.bind(InternetAddress.anyIPv4, _udpPort)
-        .then((socket) {
-      socket.broadcastEnabled = true;
-      _udpSub = socket.listen((event) {
-        if (event == RawSocketEvent.read) {
-          final dg = socket.receive();
-          if (dg == null) return;
-          final message = String.fromCharCodes(dg.data);
-          if (!_handleIp(message)) return;
-          Logger.log('UDP Received: $_address:$_port');
-          socket.close();
-          _udpSub?.cancel();
-          _connectTo(visitId);
-        }
-      });
-    });
+    try {
+      await RawDatagramSocket.bind(InternetAddress.anyIPv4, _udpPort)
+          .then((socket) {
+        Logger.log('Start Listening on port $_udpPort');
+        socket.broadcastEnabled = true;
+        _udpSub = socket.listen((event) {
+          if (event == RawSocketEvent.read) {
+            final dg = socket.receive();
+            if (dg == null) return;
+            final message = String.fromCharCodes(dg.data);
+            if (!_handleIp(message)) return;
+            Logger.log('UDP Received: $_address:$_port');
+            socket.close();
+            _udpSub?.cancel();
+            _connectTo(visitId);
+          }
+        });
+      }).onError(
+        (error, stackTrace) {
+          Logger.log(error);
+        },
+      );
+    } catch (error) {
+      Logger.log(error);
+    }
   }
 
   Future<void> disconnect() async {
@@ -59,9 +67,12 @@ class SendCommandController {
       .map<StringCommunication>(
           (event) => StringCommunication(event.body as String));
 
-  Future<void> sendCommand(Command command) async {
+  Future<void> sendCommand(Command command) async =>
+      await sendStringCommand(command.stringValue);
+
+  Future<void> sendStringCommand(String command) async {
     if (_socket == null) return;
-    await _socket!.sendMessage(command.stringValue);
+    await _socket!.sendMessage(command);
   }
 
   bool _handleIp(String message) {

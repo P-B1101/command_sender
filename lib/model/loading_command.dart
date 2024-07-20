@@ -1,4 +1,5 @@
-enum LoadingCommand {
+enum HeaderCommand {
+  refId,
   startRecordingLoading,
   startRecordingDone,
   stopRecordingLoading,
@@ -6,6 +7,7 @@ enum LoadingCommand {
   unknown;
 
   String get stringValue => switch (this) {
+        refId => 'REF_ID',
         startRecordingLoading => 'START_RECORDING_LOADING',
         startRecordingDone => 'START_RECORDING_DONE',
         stopRecordingLoading => 'STOP_RECORDING_LOADING',
@@ -13,11 +15,11 @@ enum LoadingCommand {
         unknown => 'UNKNOWN',
       };
 
-  static LoadingCommand fromString(String value) => switch (value) {
+  static HeaderCommand fromString(String value) => switch (value) {
         'START_RECORDING_LOADING' => startRecordingLoading,
         'START_RECORDING_DONE' => startRecordingDone,
         'STOP_RECORDING_LOADING' => stopRecordingLoading,
         'STOP_RECORDING_DONE' => stopRecordingDone,
-        _ => unknown,
+        _ => value.startsWith('REF_IF') ? refId : unknown,
       };
 }

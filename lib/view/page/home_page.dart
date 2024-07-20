@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
-// import 'package:device_screenshot/device_screenshot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:overlay_app/controller/pop_up_controller.dart';
-import 'package:overlay_app/controller/send_command_controller.dart';
-import 'package:overlay_app/model/command.dart';
-import 'package:overlay_app/model/loading_command.dart';
-import 'package:overlay_app/model/string_communication.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
+
+import '../../controller/pop_up_controller.dart';
+import '../../controller/send_command_controller.dart';
+import '../../model/command.dart';
+import '../../model/loading_command.dart';
+import '../../model/string_communication.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,9 +20,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-final _sendCommandController = SendCommandController();
-
 class _HomePageState extends State<HomePage> {
+  final _sendCommandController = SendCommandController();
   static const String _kPortNameHome = 'UI';
   static const String _kPortNameHeader = 'HEADER';
   final _receivePort = ReceivePort();
@@ -46,20 +45,41 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FilledButton(
-              onPressed: _onStartClick,
-              child: const Text('Start'),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _onStopClick,
-              child: const Text('Stop'),
-            ),
-          ],
+      body: SizedBox(
+        width: double.infinity,
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _onStartClick,
+                child: const Text('Start'),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _onStopClick,
+                child: const Text('Stop'),
+              ),
+              const Divider(),
+              const SizedBox(height: 24),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: StreamBuilder<String>(
+                      initialData: '',
+                      stream: LogObserver.instance.observer,
+                      builder: (context, snapshot) => Text(
+                        snapshot.data ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -78,7 +98,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onStartClick() async {
-    final visitId = await PopUpController.showVisigIdPopup(context);
+    final visitId = await PopUpController.showVisitIdPopup(context);
     if (visitId == null) return;
     await _sendCommandController.connect(visitId);
     _sendCommandController.listenForCommand().listen(_listenToSocket);
@@ -90,13 +110,14 @@ class _HomePageState extends State<HomePage> {
     final command = Command.fromString(message);
     switch (command) {
       case Command.startRecording:
-        await _sendCommandController.sendCommand(command);
-        _sendCommand(LoadingCommand.startRecordingLoading);
+        await _sendCommandController.sendStringCommand(message);
+        _sendCommand(HeaderCommand.startRecordingLoading);
         break;
       case Command.stopRecording:
         await _sendCommandController.sendCommand(command);
-        _sendCommand(LoadingCommand.stopRecordingLoading);
+        _sendCommand(HeaderCommand.stopRecordingLoading);
         break;
+      case Command.refId:
       case Command.token:
       case Command.unknown:
         break;
@@ -106,10 +127,15 @@ class _HomePageState extends State<HomePage> {
   void _listenToSocket(StringCommunication message) {
     switch (message.getCommand) {
       case Command.startRecording:
-        _sendCommand(LoadingCommand.startRecordingLoading);
+        _sendCommand(HeaderCommand.startRecordingLoading);
         break;
       case Command.stopRecording:
-        _sendCommand(LoadingCommand.stopRecordingDone);
+        _sendCommand(HeaderCommand.stopRecordingDone);
+        break;
+      case Command.refId:
+        final refId = message.getRefId;
+        if (refId == null) break;
+        _sendStringCommand('${HeaderCommand.refId}:$refId');
         break;
       case Command.unknown:
       case Command.token:
@@ -117,9 +143,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _sendCommand(LoadingCommand command) {
+  void _sendCommand(HeaderCommand command) =>
+      _sendStringCommand(command.stringValue);
+
+  void _sendStringCommand(String command) {
     _port ??= IsolateNameServer.lookupPortByName(_kPortNameHeader);
-    _port?.send(command.stringValue);
+    _port?.send(command);
   }
 
   static Future<void> _startOverWindow() async {

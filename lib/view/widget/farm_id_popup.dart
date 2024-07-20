@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class InputPopup extends StatefulWidget {
-  const InputPopup({super.key});
+class FarmIdInputPopup extends StatefulWidget {
+  const FarmIdInputPopup({super.key});
 
   @override
-  State<InputPopup> createState() => _InputPopupState();
+  State<FarmIdInputPopup> createState() => _FarmIdInputPopupState();
 }
 
-class _InputPopupState extends State<InputPopup> {
+class _FarmIdInputPopupState extends State<FarmIdInputPopup> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
