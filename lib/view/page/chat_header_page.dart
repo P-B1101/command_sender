@@ -164,9 +164,11 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     });
   }
 
-  void _sendCommand(Command command) {
+  void _sendCommand(Command command) => _sendStringCommand(command.stringValue);
+
+  void _sendStringCommand(String command) {
     _port ??= IsolateNameServer.lookupPortByName(_kPortNameHome);
-    _port?.send(command.stringValue);
+    _port?.send(command);
   }
 
   // void _onTakeScreenShot() {
@@ -183,11 +185,13 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       refId: _refId,
     );
     if (cowAndRefId?.serialize == null) return;
-    _sendCommand(Command.startRecording);
+    _sendStringCommand(
+        '${Command.startRecording.stringValue}:${cowAndRefId!.serialize}');
   }
 
   void _onStopRecording() {
     _sendCommand(Command.stopRecording);
+    _refId = null;
   }
 
   static void _handleMessage(String message) async {
