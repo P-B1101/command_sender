@@ -160,8 +160,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
         _stopLoading.value = false;
         break;
       case HeaderCommand.refId:
-        _refId =
-            message.substring(message.indexOf('${loading.stringValue}:') + 1);
+        _refId = message.split(':')[2];
         break;
       case HeaderCommand.unknown:
         break;
@@ -171,6 +170,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   void _onTap() {
     setState(() {
       _isOpen = !_isOpen;
+      if (!_isOpen) {
+        _startLoading.value = false;
+        _stopLoading.value = false;
+      }
     });
   }
 

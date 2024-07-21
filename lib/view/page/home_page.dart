@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
       case Command.refId:
         final refId = message.getRefId;
         if (refId == null) break;
-        _sendStringCommand('${HeaderCommand.refId}:$refId');
+        _sendStringCommand('${HeaderCommand.refId.stringValue}:$refId');
         break;
       case Command.unknown:
       case Command.token:

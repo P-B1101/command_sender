@@ -22,7 +22,7 @@ enum HeaderCommand {
         'START_RECORDING_DONE' => startRecordingDone,
         'STOP_RECORDING_LOADING' => stopRecordingLoading,
         'STOP_RECORDING_DONE' => stopRecordingDone,
-        _ => value.startsWith('REF_IF')
+        _ => value.startsWith('REF_ID')
             ? refId
             : value.startsWith('SIZE')
                 ? size
