@@ -21,14 +21,14 @@ class PopUpController {
 
   static Future<CowId?> showCowIdPopup({
     required BuildContext context,
-    required String? refId,
+    required String? rfId,
   }) async {
     final result = await showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(.25),
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: CowIdInputPopup(refId: refId),
+        child: CowIdInputPopup(rfId: rfId),
       ),
     );
     if (result is! CowId) return null;

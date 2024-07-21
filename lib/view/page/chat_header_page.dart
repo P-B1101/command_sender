@@ -3,14 +3,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:overlay_app/core/utils/utils.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
 import '../../controller/pop_up_controller.dart';
+import '../../core/utils/utils.dart';
 import '../../model/button_type.dart';
 import '../../model/command.dart';
-import '../../model/loading_command.dart';
+import '../../model/header_command.dart';
 import '../widget/circular_loading_widget.dart';
 
 class MessangerChatHead extends StatefulWidget {
@@ -29,10 +29,11 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   static final _controller = BehaviorSubject<String>();
   SendPort? _port;
   bool _isOpen = false;
-  String? _refId;
+  String? _rfId;
   Size? _size;
   final _defaultSize = const Size(411, 800);
   bool _showContent = true;
+  bool _standBy = false;
 
   @override
   void initState() {
@@ -70,6 +71,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _startLoading,
                       builder: (context, value, child) => _ButtonWidget(
+                        isEnable: _standBy,
                         isLoading: value,
                         size: _childButtonSize,
                         type: ButtonType.startRecording,
@@ -85,6 +87,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _stopLoading,
                       builder: (context, value, child) => _ButtonWidget(
+                        isEnable: _standBy,
                         isLoading: value,
                         size: _childButtonSize,
                         type: ButtonType.stopRecording,
@@ -159,10 +162,14 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.stopRecordingDone:
         _stopLoading.value = false;
         break;
-      case HeaderCommand.refId:
-        _refId = message.split(':')[2];
+      case HeaderCommand.rfId:
+        _rfId = message.split(':')[1];
         break;
       case HeaderCommand.unknown:
+        break;
+      case HeaderCommand.standby:
+        _standBy = message.split(':')[1] == 'true';
+        setState(() {});
         break;
     }
   }
@@ -199,9 +206,9 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       _showContent = true;
     });
     if (!mounted) return;
-    final cowAndRefId = await PopUpController.showCowIdPopup(
+    final cowAndRFId = await PopUpController.showCowIdPopup(
       context: context,
-      refId: _refId,
+      rfId: _rfId,
     );
 
     setState(() {
@@ -217,10 +224,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     setState(() {
       _showContent = true;
     });
-    if (cowAndRefId?.serialize == null) return;
+    if (cowAndRFId?.serialize == null) return;
     _sendStringCommand(
-        '${Command.startRecording.stringValue}:${cowAndRefId!.serialize}');
-    _refId = null;
+        '${Command.startRecording.stringValue}:${cowAndRFId!.serialize}');
+    _rfId = null;
   }
 
   void _onStopRecording() {
@@ -243,58 +250,65 @@ class _ButtonWidget extends StatelessWidget {
   final Function() onTap;
   final double size;
   final bool isLoading;
+  final bool isEnable;
   const _ButtonWidget({
     required this.type,
     required this.onTap,
     required this.size,
     required this.isLoading,
+    required this.isEnable,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: type.toColor.withOpacity(.5),
-              ),
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+      opacity: isEnable ? 1 : .5,
+      child: SizedBox.square(
+        dimension: size,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
               child: Container(
-                margin: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: type.toColor.withOpacity(.5),
                 ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: isLoading ? null : onTap,
-                child: Center(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    switchInCurve: Curves.easeIn,
-                    switchOutCurve: Curves.easeOut,
-                    child: isLoading
-                        ? const CircularLoadingWidget()
-                        : Text(
-                            type.toStringValue,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                child: Container(
+                  margin: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: type.toColor.withOpacity(.5),
                   ),
                 ),
               ),
             ),
-          )
-        ],
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: isLoading || !isEnable ? null : onTap,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      child: isLoading
+                          ? const CircularLoadingWidget()
+                          : Text(
+                              type.toStringValue,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

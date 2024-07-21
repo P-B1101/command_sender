@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:overlay_app/model/cow_id.dart';
 
 class CowIdInputPopup extends StatefulWidget {
-  final String? refId;
+  final String? rfId;
   const CowIdInputPopup({
     super.key,
-    required this.refId,
+    required this.rfId,
   });
 
   @override
@@ -14,17 +14,17 @@ class CowIdInputPopup extends StatefulWidget {
 
 class _CowIdInputPopupState extends State<CowIdInputPopup> {
   final _idController = TextEditingController();
-  late final _refIdController = TextEditingController(text: widget.refId);
+  late final _rfIdController = TextEditingController(text: widget.rfId);
   final _idNode = FocusNode();
-  final _refIdNode = FocusNode();
+  final _rfIdNode = FocusNode();
   final _errorNotifier = ValueNotifier<String>('');
 
   @override
   void dispose() {
     _idController.dispose();
     _idNode.dispose();
-    _refIdController.dispose();
-    _refIdNode.dispose();
+    _rfIdController.dispose();
+    _rfIdNode.dispose();
     _errorNotifier.dispose();
     super.dispose();
   }
@@ -56,7 +56,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             const SizedBox(height: 16),
             _idInputWidget,
             const SizedBox(height: 16),
-            _refIdInputWidget,
+            _rfIdInputWidget,
             const SizedBox(height: 8),
             _errorWidget,
             const SizedBox(height: 32),
@@ -69,7 +69,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
   }
 
   Widget get _titleWidget => Text(
-        'Enter Cow & Ref ID',
+        'Enter Cow & RF ID',
         style: Theme.of(context).textTheme.bodyMedium,
       );
 
@@ -81,7 +81,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
           textAlign: TextAlign.center,
           textInputAction: TextInputAction.next,
           onSubmitted: (value) {
-            _refIdNode.requestFocus();
+            _rfIdNode.requestFocus();
           },
           onChanged: (value) {
             if (value.isNotEmpty) _errorNotifier.value = '';
@@ -90,17 +90,17 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
         ),
       );
 
-  Widget get _refIdInputWidget => ClipRRect(
+  Widget get _rfIdInputWidget => ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: TextField(
-          controller: _refIdController,
-          focusNode: _refIdNode,
+          controller: _rfIdController,
+          focusNode: _rfIdNode,
           textAlign: TextAlign.center,
           onSubmitted: (value) {
-            _refIdNode.unfocus();
+            _rfIdNode.unfocus();
           },
-          decoration: const InputDecoration(hintText: 'Enter Ref ID...'),
-          readOnly: widget.refId != null,
+          decoration: const InputDecoration(hintText: 'Enter RF ID...'),
+          readOnly: widget.rfId != null,
           onChanged: (value) {
             if (value.isNotEmpty) _errorNotifier.value = '';
           },
@@ -151,13 +151,13 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
       );
 
   void _onClick() {
-    if (_idController.text.isEmpty && _refIdController.text.isEmpty) {
-      _errorNotifier.value = 'One of the "Ref ID" or "Cow ID" needed.';
+    if (_idController.text.isEmpty && _rfIdController.text.isEmpty) {
+      _errorNotifier.value = 'One of the "RF ID" or "Cow ID" needed.';
       return;
     }
     final id = CowId(
       id: _idController.text.isEmpty ? null : _idController.text,
-      refId: _refIdController.text.isEmpty ? null : _refIdController.text,
+      rfId: _rfIdController.text.isEmpty ? null : _rfIdController.text,
     );
     Navigator.of(context).pop(id);
   }

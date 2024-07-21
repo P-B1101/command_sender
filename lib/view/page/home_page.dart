@@ -11,7 +11,7 @@ import '../../controller/pop_up_controller.dart';
 import '../../controller/send_command_controller.dart';
 import '../../core/utils/utils.dart';
 import '../../model/command.dart';
-import '../../model/loading_command.dart';
+import '../../model/header_command.dart';
 import '../../model/string_communication.dart';
 
 class HomePage extends StatefulWidget {
@@ -129,9 +129,12 @@ class _HomePageState extends State<HomePage> {
         await _sendCommandController.sendCommand(command);
         _sendCommand(HeaderCommand.stopRecordingLoading);
         break;
-      case Command.refId:
+      case Command.standby:
+      case Command.rfId:
       case Command.token:
       case Command.unknown:
+      case Command.visitId:
+      case Command.dateTime:
         break;
     }
   }
@@ -144,13 +147,20 @@ class _HomePageState extends State<HomePage> {
       case Command.stopRecording:
         _sendCommand(HeaderCommand.stopRecordingDone);
         break;
-      case Command.refId:
-        final refId = message.getRefId;
-        if (refId == null) break;
-        _sendStringCommand('${HeaderCommand.refId.stringValue}:$refId');
+      case Command.rfId:
+        final rfId = message.getRFId;
+        if (rfId == null) break;
+        _sendStringCommand('${HeaderCommand.rfId.stringValue}:$rfId');
+        break;
+      case Command.standby:
+        final standby = message.getStandby;
+        if (standby == null) break;
+        _sendStringCommand('${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.unknown:
       case Command.token:
+      case Command.visitId:
+      case Command.dateTime:
         break;
     }
   }

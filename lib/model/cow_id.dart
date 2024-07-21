@@ -1,18 +1,18 @@
 class CowId {
   final String? id;
-  final String? refId;
+  final String? rfId;
 
   const CowId({
     required this.id,
-    required this.refId,
+    required this.rfId,
   });
 
-  factory CowId.fromRefId(String refId) => CowId(id: null, refId: refId);
+  factory CowId.fromRfId(String rfId) => CowId(id: null, rfId: rfId);
 
   String? get serialize {
-    if (id == null && refId == null) return null;
-    if (id == null) return 'NULL:$refId';
-    if (refId == null) return '$id:NULL';
-    return '$id:$refId';
+    if (id == null && rfId == null) return null;
+    if (id == null) return 'NULL:$rfId';
+    if (rfId == null) return '$id:NULL';
+    return '$id:$rfId';
   }
 }

@@ -9,7 +9,7 @@ import '../model/command.dart';
 
 const _udpPort = 1101;
 const _clientType = 'ANDROID_INTERFACE';
-const _visitId = 'VISIT_ID:';
+// const _visitId = 'VISIT_ID:';
 
 class SendCommandController {
   String _address = '';
@@ -101,7 +101,10 @@ class SendCommandController {
       _listenToServer();
       await sendMessage(_clientType);
       await Future.delayed(const Duration(seconds: 1));
-      await sendMessage('$_visitId$visitId');
+      await sendMessage('${Command.visitId.stringValue}:$visitId');
+      await Future.delayed(const Duration(seconds: 1));
+      final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+      await sendMessage('${Command.dateTime.stringValue}:$now');
       Logger.log('Start listening...');
     } catch (error) {
       Logger.log(error);

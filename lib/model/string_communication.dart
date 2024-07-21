@@ -10,5 +10,11 @@ class StringCommunication extends Communication {
 
   Command get getCommand => Command.fromString(data);
 
-  String? get getRefId => getCommand == Command.refId ? data : null;
+  String? get getRFId => getCommand == Command.rfId ? data : null;
+
+  bool? get getStandby => getCommand == Command.standby
+      ? data.toLowerCase() == 'true'
+      : data.toLowerCase() == 'false'
+          ? false
+          : null;
 }
