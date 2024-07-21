@@ -15,7 +15,7 @@ enum HeaderCommand {
         startRecordingDone => 'START_RECORDING_DONE',
         stopRecordingLoading => 'STOP_RECORDING_LOADING',
         stopRecordingDone => 'STOP_RECORDING_DONE',
-        standby => 'STAND_BY',
+        standby => 'STANDBY',
         unknown => 'UNKNOWN',
       };
 

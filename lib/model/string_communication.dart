@@ -10,11 +10,20 @@ class StringCommunication extends Communication {
 
   Command get getCommand => Command.fromString(data);
 
-  String? get getRFId => getCommand == Command.rfId ? data : null;
+  String? get getRFId {
+    if (getCommand != Command.rfId) return null;
+    final temp = data.split(':');
+    if (temp.length != 2) return null;
+    return temp[1];
+  }
 
-  bool? get getStandby => getCommand == Command.standby
-      ? data.toLowerCase() == 'true'
-      : data.toLowerCase() == 'false'
-          ? false
-          : null;
+  bool? get getStandby {
+    if (getCommand != Command.standby) return null;
+    final temp = data.split(':');
+    if (temp.length != 2) return null;
+    final newTemp = temp[1].toLowerCase();
+    if (newTemp == 'true') return true;
+    if (newTemp == 'false') return false;
+    return null;
+  }
 }
