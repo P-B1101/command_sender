@@ -15,7 +15,7 @@ enum Command {
         token => 'TOKEN',
         startRecording => 'START_RECORDING',
         stopRecording => 'STOP_RECORDING',
-        rfId => 'RF_ID',
+        rfId => 'RFID',
         unknown => 'UNKNOWN',
       };
 
@@ -24,7 +24,7 @@ enum Command {
         'START_RECORDING' => startRecording,
         'STOP_RECORDING' => stopRecording,
         _ => () {
-            if (value.startsWith('RF_ID')) return rfId;
+            if (value.startsWith('RFID')) return rfId;
             if (value.startsWith('START_RECORDING')) return startRecording;
             if (value.startsWith('VISIT_ID')) return visitId;
             if (value.startsWith('DATE_TIME')) return dateTime;

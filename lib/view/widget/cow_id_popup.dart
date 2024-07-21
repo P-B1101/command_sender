@@ -69,7 +69,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
   }
 
   Widget get _titleWidget => Text(
-        'Enter Cow & RF ID',
+        'Enter Cow ID & RFID',
         style: Theme.of(context).textTheme.bodyMedium,
       );
 
@@ -99,7 +99,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
           onSubmitted: (value) {
             _rfIdNode.unfocus();
           },
-          decoration: const InputDecoration(hintText: 'Enter RF ID...'),
+          decoration: const InputDecoration(hintText: 'Enter RFID...'),
           readOnly: widget.rfId != null,
           onChanged: (value) {
             if (value.isNotEmpty) _errorNotifier.value = '';
@@ -152,7 +152,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
 
   void _onClick() {
     if (_idController.text.isEmpty && _rfIdController.text.isEmpty) {
-      _errorNotifier.value = 'One of the "RF ID" or "Cow ID" needed.';
+      _errorNotifier.value = 'One of the "RFID" or "Cow ID" needed.';
       return;
     }
     final id = CowId(
