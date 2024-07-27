@@ -140,6 +140,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _listenToSocket(StringCommunication message) {
+    Logger.log('message from socket: $message');
     switch (message.getCommand) {
       case Command.startRecording:
         _sendCommand(HeaderCommand.startRecordingDone);
