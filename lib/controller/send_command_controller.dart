@@ -103,8 +103,6 @@ class SendCommandController {
       await Future.delayed(const Duration(seconds: 1));
       await sendMessage('${Command.visitId.stringValue}:$visitId');
       await Future.delayed(const Duration(seconds: 1));
-      final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
-      await sendMessage('${Command.dateTime.stringValue}:$now');
       Logger.log('Start listening...');
     } catch (error) {
       Logger.log(error);

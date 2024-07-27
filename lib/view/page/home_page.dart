@@ -157,10 +157,13 @@ class _HomePageState extends State<HomePage> {
         if (standby == null) break;
         _sendStringCommand('${HeaderCommand.standby.stringValue}:$standby');
         break;
+      case Command.dateTime:
+        final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+        _sendStringCommand('${Command.dateTime.stringValue}:$now');
+        break;
       case Command.unknown:
       case Command.token:
       case Command.visitId:
-      case Command.dateTime:
         break;
     }
   }
