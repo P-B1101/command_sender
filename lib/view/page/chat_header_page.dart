@@ -1,5 +1,4 @@
-import 'dart:isolate';
-import 'dart:ui';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -23,11 +22,11 @@ class MessangerChatHead extends StatefulWidget {
 class _MessangerChatHeadState extends State<MessangerChatHead> {
   final _startLoading = ValueNotifier<bool>(false);
   final _stopLoading = ValueNotifier<bool>(false);
-  static const String _kPortNameHome = 'UI';
-  static const String _kPortNameHeader = 'HEADER';
-  final _receivePort = ReceivePort();
+  // static const String _kPortNameHome = 'UI';
+  // static const String _kPortNameHeader = 'HEADER';
+  // final _receivePort = ReceivePort();
   static final _controller = BehaviorSubject<String>();
-  SendPort? _port;
+  // SendPort? _port;
   bool _isOpen = false;
   String? _rfId;
   Size? _size;
@@ -131,13 +130,16 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   }
 
   void _handleInitState() {
-    if (_port != null) return;
-    IsolateNameServer.registerPortWithName(
-      _receivePort.sendPort,
-      _kPortNameHeader,
-    );
-    _receivePort.listen((message) {
-      _handleMessage(message);
+    // if (_port != null) return;
+    // IsolateNameServer.registerPortWithName(
+    //   _receivePort.sendPort,
+    //   _kPortNameHeader,
+    // );
+    // _receivePort.listen((message) {
+    //   _handleMessage(message);
+    // });
+    FlutterOverlayWindow.overlayListener.listen((event) {
+      _handleMessage(event);
     });
     _controller.listen(_listenForMessage);
   }
@@ -184,11 +186,13 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     });
   }
 
-  void _sendCommand(Command command) => _sendStringCommand(command.stringValue);
+  Future<void> _sendCommand(Command command) =>
+      _sendStringCommand(command.stringValue);
 
-  void _sendStringCommand(String command) {
-    _port ??= IsolateNameServer.lookupPortByName(_kPortNameHome);
-    _port?.send(command);
+  Future<void> _sendStringCommand(String command) async {
+    await FlutterOverlayWindow.shareData(command);
+    // _port ??= IsolateNameServer.lookupPortByName(_kPortNameHome);
+    // _port?.send(command);
   }
 
   void _onStartRecording() async {
@@ -225,7 +229,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       _showContent = true;
     });
     if (cowAndRFId?.serialize == null) return;
-    _sendStringCommand(
+    await _sendStringCommand(
         '${Command.startRecording.stringValue}:${cowAndRFId!.serialize}');
     _rfId = null;
   }
