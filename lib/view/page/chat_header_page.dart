@@ -117,7 +117,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                           onTap: _onTap,
                           child: Center(
                             child: ClipOval(
-                              child: Image.asset('assets/image/logo.jpg'),
+                              child: Image.asset('assets/image/logo.png'),
                             ),
                           ),
                         ),
