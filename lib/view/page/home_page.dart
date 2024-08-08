@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:isolate';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -23,10 +21,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _sendCommandController = SendCommandController();
-  static const String _kPortNameHome = 'UI';
-  static const String _kPortNameHeader = 'HEADER';
-  final _receivePort = ReceivePort();
-  SendPort? _port;
+  // static const String _kPortNameHome = 'UI';
+  // static const String _kPortNameHeader = 'HEADER';
+  // final _receivePort = ReceivePort();
+  // SendPort? _port;
   StreamSubscription<StringCommunication>? _sub;
   static final _controller = BehaviorSubject<String>();
 
@@ -92,14 +90,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleInitState() {
-    if (_port != null) return;
+    // if (_port != null) return;
     _checkForUsibility();
-    IsolateNameServer.registerPortWithName(
-      _receivePort.sendPort,
-      _kPortNameHome,
-    );
-    _receivePort.listen((message) {
-      _handleMessage(message);
+    // IsolateNameServer.registerPortWithName(
+    //   _receivePort.sendPort,
+    //   _kPortNameHome,
+    // );
+    // _receivePort.listen((message) {
+    //   _handleMessage(message);
+    // });
+    FlutterOverlayWindow.overlayListener.listen((event) {
+      _handleMessage(event);
     });
     _controller.listen(_listenToHeader);
   }
@@ -123,11 +124,11 @@ class _HomePageState extends State<HomePage> {
     switch (command) {
       case Command.startRecording:
         await _sendCommandController.sendStringCommand(message);
-        _sendCommand(HeaderCommand.startRecordingLoading);
+        await _sendCommand(HeaderCommand.startRecordingLoading);
         break;
       case Command.stopRecording:
         await _sendCommandController.sendCommand(command);
-        _sendCommand(HeaderCommand.stopRecordingLoading);
+        await _sendCommand(HeaderCommand.stopRecordingLoading);
         break;
       case Command.standby:
       case Command.rfId:
@@ -139,28 +140,29 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _listenToSocket(StringCommunication message) {
+  void _listenToSocket(StringCommunication message) async {
     Logger.log('message from socket: $message');
     switch (message.getCommand) {
       case Command.startRecording:
-        _sendCommand(HeaderCommand.startRecordingDone);
+        await _sendCommand(HeaderCommand.startRecordingDone);
         break;
       case Command.stopRecording:
-        _sendCommand(HeaderCommand.stopRecordingDone);
+        await _sendCommand(HeaderCommand.stopRecordingDone);
         break;
       case Command.rfId:
         final rfId = message.getRFId;
         if (rfId == null) break;
-        _sendStringCommand('${HeaderCommand.rfId.stringValue}:$rfId');
+        await _sendStringCommand('${HeaderCommand.rfId.stringValue}:$rfId');
         break;
       case Command.standby:
         final standby = message.getStandby;
         if (standby == null) break;
-        _sendStringCommand('${HeaderCommand.standby.stringValue}:$standby');
+        await _sendStringCommand(
+            '${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.dateTime:
         final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
-        _sendStringCommand('${Command.dateTime.stringValue}:$now');
+        await _sendStringCommand('${Command.dateTime.stringValue}:$now');
         break;
       case Command.unknown:
       case Command.token:
@@ -169,12 +171,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _sendCommand(HeaderCommand command) =>
+  Future<void> _sendCommand(HeaderCommand command) =>
       _sendStringCommand(command.stringValue);
 
-  void _sendStringCommand(String command) {
-    _port ??= IsolateNameServer.lookupPortByName(_kPortNameHeader);
-    _port?.send(command);
+  Future<void> _sendStringCommand(String command) async {
+    await FlutterOverlayWindow.shareData(command);
   }
 
   Future<void> _checkForUsibility() async {
