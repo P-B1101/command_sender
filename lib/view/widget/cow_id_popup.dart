@@ -68,9 +68,32 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
     );
   }
 
-  Widget get _titleWidget => Text(
-        'Enter Cow ID & RFID',
-        style: Theme.of(context).textTheme.bodyMedium,
+  Widget get _titleWidget => SizedBox(
+        width: double.infinity,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Center(
+                child: Text(
+                  'Enter Cow ID & RFID',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+            SizedBox.square(
+              dimension: 32,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: Navigator.of(context).pop,
+                  child: const CloseButtonIcon(),
+                ),
+              ),
+            )
+          ],
+        ),
       );
 
   Widget get _idInputWidget => ClipRRect(

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -21,9 +23,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _sendCommandController = SendCommandController();
-  // static const String _kPortNameHome = 'UI';
+  static const String _kPortNameHome = 'UI';
   // static const String _kPortNameHeader = 'HEADER';
-  // final _receivePort = ReceivePort();
+  final _receivePort = ReceivePort();
   // SendPort? _port;
   StreamSubscription<StringCommunication>? _sub;
   static final _controller = BehaviorSubject<String>();
@@ -90,18 +92,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleInitState() {
-    // if (_port != null) return;
     _checkForUsibility();
-    // IsolateNameServer.registerPortWithName(
-    //   _receivePort.sendPort,
-    //   _kPortNameHome,
-    // );
-    // _receivePort.listen((message) {
-    //   _handleMessage(message);
-    // });
-    FlutterOverlayWindow.overlayListener.listen((event) {
-      _handleMessage(event);
+    IsolateNameServer.registerPortWithName(
+      _receivePort.sendPort,
+      _kPortNameHome,
+    );
+    _receivePort.listen((message) {
+      _handleMessage(message);
     });
+    // FlutterOverlayWindow.overlayListener.listen((event) {
+    //   _handleMessage(event);
+    // });
     _controller.listen(_listenToHeader);
   }
 
@@ -204,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       enableDrag: true,
       overlayTitle: 'iClassifier',
       overlayContent: 'iClassifier command sender',
-      flag: OverlayFlag.focusPointer,
+      flag: OverlayFlag.defaultFlag,
       positionGravity: PositionGravity.left,
       alignment: OverlayAlignment.topRight,
       width: (Utils.headerInitialWidth * ratio).toInt(),
