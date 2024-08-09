@@ -163,7 +163,8 @@ class _HomePageState extends State<HomePage> {
         break;
       case Command.dateTime:
         final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
-        await _sendStringCommand('${Command.dateTime.stringValue}:$now');
+        await _sendCommandController
+            .sendStringCommand('${Command.dateTime.stringValue}:$now');
         break;
       case Command.unknown:
       case Command.token:
