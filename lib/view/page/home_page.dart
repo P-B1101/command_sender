@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
             '${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.dateTime:
-        final now = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         await _sendCommandController
             .sendStringCommand('${Command.dateTime.stringValue}:$now');
         break;
