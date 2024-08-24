@@ -154,8 +154,6 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.size:
         final temp = message.split(':');
         _size = Size(double.parse(temp[1]), double.parse(temp[2]));
-        _position =
-            OverlayPosition(double.parse(temp[3]), double.parse(temp[4]));
         break;
       case HeaderCommand.startRecordingLoading:
         _startLoading.value = true;
@@ -210,11 +208,12 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       _size?.height.toInt() ?? _defaultSize.height.toInt(),
       false,
     );
+    _position = await FlutterOverlayWindow.getOverlayPosition();
     await FlutterOverlayWindow.moveOverlay(const OverlayPosition(0, 0));
-    await Future.delayed(const Duration(milliseconds: 100));
-    setState(() {
-      _showContent = true;
-    });
+    // await Future.delayed(const Duration(milliseconds: 100));
+    // setState(() {
+    //   _showContent = true;
+    // });
     if (!mounted) return;
     FlutterOverlayWindow.updateFlag(OverlayFlag.focusPointer);
     final cowAndRFId = await PopUpController.showCowIdPopup(
@@ -222,10 +221,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       rfId: _rfId,
     );
     FlutterOverlayWindow.updateFlag(OverlayFlag.defaultFlag);
-    setState(() {
-      _showContent = false;
-    });
-    await Future.delayed(const Duration(milliseconds: 100));
+    // setState(() {
+    //   _showContent = false;
+    // });
+    // await Future.delayed(const Duration(milliseconds: 100));
     await FlutterOverlayWindow.resizeOverlay(
       Utils.headerInitialWidth,
       Utils.headerInitialHeight,

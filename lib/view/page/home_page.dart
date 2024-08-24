@@ -216,8 +216,7 @@ class _HomePageState extends State<HomePage> {
     );
     _sendStringCommand(
       '${HeaderCommand.size.stringValue}'
-      ':${size.width}:${size.height}'
-      ':${position.x}:${position.y}',
+      ':${size.width}:${size.height}',
     );
   }
 
