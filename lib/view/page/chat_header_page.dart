@@ -31,7 +31,9 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   bool _isOpen = false;
   String? _rfId;
   Size? _size;
+  OverlayPosition? _position;
   final _defaultSize = const Size(411, 800);
+  final _defaultPosition = const OverlayPosition(0, 24);
   bool _showContent = true;
   bool _standBy = false;
 
@@ -152,6 +154,8 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.size:
         final temp = message.split(':');
         _size = Size(double.parse(temp[1]), double.parse(temp[2]));
+        _position =
+            OverlayPosition(double.parse(temp[3]), double.parse(temp[4]));
         break;
       case HeaderCommand.startRecordingLoading:
         _startLoading.value = true;
@@ -206,6 +210,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       _size?.height.toInt() ?? _defaultSize.height.toInt(),
       false,
     );
+    await FlutterOverlayWindow.moveOverlay(const OverlayPosition(0, 0));
     await Future.delayed(const Duration(milliseconds: 100));
     setState(() {
       _showContent = true;
@@ -226,6 +231,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       Utils.headerInitialHeight,
       true,
     );
+    await FlutterOverlayWindow.moveOverlay(_position ?? _defaultPosition);
     await Future.delayed(const Duration(milliseconds: 200));
     setState(() {
       _showContent = true;

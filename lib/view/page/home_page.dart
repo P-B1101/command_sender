@@ -202,6 +202,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     final size = MediaQuery.sizeOf(context);
     final ratio = MediaQuery.devicePixelRatioOf(context);
+    const position = OverlayPosition(0, 24);
     await FlutterOverlayWindow.showOverlay(
       enableDrag: true,
       overlayTitle: 'iClassifier',
@@ -211,10 +212,13 @@ class _HomePageState extends State<HomePage> {
       alignment: OverlayAlignment.topRight,
       width: (Utils.headerInitialWidth * ratio).toInt(),
       height: (Utils.headerInitialHeight * ratio).toInt(),
-      startPosition: const OverlayPosition(0, 24),
+      startPosition: position,
     );
     _sendStringCommand(
-        '${HeaderCommand.size.stringValue}:${size.width}:${size.height}');
+      '${HeaderCommand.size.stringValue}'
+      ':${size.width}:${size.height}'
+      ':${position.x}:${position.y}',
+    );
   }
 
   void _onStopClick() {
