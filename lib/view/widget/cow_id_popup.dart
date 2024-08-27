@@ -55,8 +55,8 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             _titleWidget,
             const SizedBox(height: 16),
             _idInputWidget,
-            const SizedBox(height: 16),
-            _rfIdInputWidget,
+            if (_hasRFID) const SizedBox(height: 16),
+            if (_hasRFID) _rfIdInputWidget,
             const SizedBox(height: 8),
             _errorWidget,
             const SizedBox(height: 32),
@@ -75,7 +75,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             Positioned.fill(
               child: Center(
                 child: Text(
-                  'Enter Cow ID & RFID',
+                  'Enter Cow ID',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -125,7 +125,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             _rfIdNode.unfocus();
           },
           decoration: const InputDecoration(hintText: 'Enter RFID...'),
-          readOnly: widget.rfId != null,
+          readOnly: _hasRFID,
           onChanged: (value) {
             if (value.isNotEmpty) _errorNotifier.value = '';
           },
@@ -176,8 +176,8 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
       );
 
   void _onClick() {
-    if (_idController.text.isEmpty && _rfIdController.text.isEmpty) {
-      _errorNotifier.value = 'One of the "RFID" or "Cow ID" needed.';
+    if (_idController.text.isEmpty) {
+      _errorNotifier.value = 'Cow ID is required.';
       return;
     }
     final id = CowId(
@@ -186,4 +186,6 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
     );
     Navigator.of(context).pop(id);
   }
+
+  bool get _hasRFID => widget.rfId != null && widget.rfId!.isNotEmpty;
 }
