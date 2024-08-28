@@ -103,7 +103,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
           focusNode: _idNode,
           textAlign: TextAlign.center,
           textInputAction: TextInputAction.next,
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.text,
           onSubmitted: (value) {
             _rfIdNode.requestFocus();
           },
