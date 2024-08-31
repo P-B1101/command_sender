@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   // static const String _kPortNameHeader = 'HEADER';
   final _receivePort = ReceivePort();
   // SendPort? _port;
-  StreamSubscription<StringCommunication>? _sub;
+  // StreamSubscription<StringCommunication>? _sub;
   static final _controller = BehaviorSubject<String>();
 
   @override
@@ -114,9 +114,12 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     final visitId = await PopUpController.showVisitIdPopup(context);
     if (visitId == null) return;
-    await _sendCommandController.connect(visitId);
-    _sendCommandController.listenForCommand().listen(_listenToSocket);
-    await _startOverWindow();
+    await _sendCommandController.connect(visitId, () {
+      _sendCommandController
+          .connectionStream()
+          .listen(_listenForSocketConnection);
+      _sendCommandController.listenForCommand().listen(_listenToSocket);
+    });
   }
 
   void _listenToHeader(String message) async {
@@ -173,6 +176,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _listenForSocketConnection(bool isConnected) async {
+    Logger.log('Connection status -> isConnected = $isConnected');
+    if (isConnected) await _startOverWindow();
+    if (!isConnected) await FlutterOverlayWindow.closeOverlay();
+  }
+
   Future<void> _sendCommand(HeaderCommand command) =>
       _sendStringCommand(command.stringValue);
 
@@ -222,8 +231,8 @@ class _HomePageState extends State<HomePage> {
 
   void _onStopClick() {
     FlutterOverlayWindow.closeOverlay();
-    _sub?.cancel();
-    _sub = null;
+    // _sub?.cancel();
+    // _sub = null;
     _sendCommandController.disconnect();
   }
 

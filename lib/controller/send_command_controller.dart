@@ -27,11 +27,11 @@ class SendCommandController {
       // this._preferences,
       );
 
-  Future<void> connect(String visitId) async {
+  Future<void> connect(String visitId, Function() onConnected) async {
     try {
       await RawDatagramSocket.bind(InternetAddress.anyIPv4, _udpPort)
           .then((socket) {
-        Logger.log('Start Listening on port $_udpPort');
+        Logger.log('Start Listening on port $_udpPort ...');
         socket.broadcastEnabled = true;
         _udpSub = socket.listen((event) {
           if (event == RawSocketEvent.read) {
@@ -42,7 +42,7 @@ class SendCommandController {
             Logger.log('UDP Received: $_address:$_port');
             socket.close();
             _udpSub?.cancel();
-            _connectTo(visitId);
+            _connectTo(visitId, onConnected);
           }
         });
       }).onError(
@@ -74,6 +74,8 @@ class SendCommandController {
 
   Future<void> sendStringCommand(String command) async {
     if (_socket == null) return;
+
+    Logger.log('Sending command $command.');
     await _socket!.sendMessage(command);
   }
 
@@ -86,7 +88,7 @@ class SendCommandController {
     return true;
   }
 
-  void _connectTo(String visitId) async {
+  void _connectTo(String visitId, Function() onConnected) async {
     if (_port == null) return;
     if (_address.isEmpty) return;
     final config = ConnectionConfig(
@@ -106,6 +108,7 @@ class SendCommandController {
       await sendMessage('${Command.visitId.stringValue}:$visitId');
       await Future.delayed(const Duration(milliseconds: commandDelay));
       Logger.log('Start listening...');
+      onConnected();
     } catch (error) {
       Logger.log(error);
     }
@@ -156,4 +159,7 @@ class SendCommandController {
     if (_socket == null) return;
     await _socket!.sendMessage(message);
   }
+
+  Stream<bool> connectionStream() =>
+      _socket?.connectionStream() ?? Stream.value(false);
 }
