@@ -168,7 +168,7 @@ class _HomePageState extends State<HomePage> {
         final nowDate = DateTime.now().toLocal();
         final now = nowDate.millisecondsSinceEpoch ~/ 1000;
         await _sendCommandController.sendStringCommand(
-            '${Command.dateTime.stringValue}:$now:${nowDate.timeZoneName}');
+            '${Command.dateTime.stringValue}:$now:${nowDate.timeZoneName}:${nowDate.timeZoneOffset.inMinutes}');
         break;
       case Command.unknown:
       case Command.token:
