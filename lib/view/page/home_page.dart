@@ -165,9 +165,10 @@ class _HomePageState extends State<HomePage> {
             '${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.dateTime:
-        final now = DateTime.now().toLocal().millisecondsSinceEpoch ~/ 1000;
-        await _sendCommandController
-            .sendStringCommand('${Command.dateTime.stringValue}:$now');
+        final nowDate = DateTime.now().toLocal();
+        final now = nowDate.millisecondsSinceEpoch ~/ 1000;
+        await _sendCommandController.sendStringCommand(
+            '${Command.dateTime.stringValue}:$now:${nowDate.timeZoneName}');
         break;
       case Command.unknown:
       case Command.token:
