@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:overlay_app/model/string_communication.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:universal_socket/universal_socket.dart';
 
@@ -9,6 +10,7 @@ import '../model/command.dart';
 
 const _udpPort = 1101;
 const _clientType = 'ANDROID_INTERFACE';
+const _clientName = 'ANDROID_OVERLAY';
 // const _visitId = 'VISIT_ID:';
 
 const commandDelay = 1000;
@@ -22,8 +24,10 @@ class SendCommandController {
   StreamSubscription? _udpSub;
   final _controller = BehaviorSubject<TCPRequest>();
   // final SharedPreferences _preferences;
+  final PackageInfo _packageInfo;
 
   SendCommandController(
+    this._packageInfo,
       // this._preferences,
       );
 
@@ -106,6 +110,9 @@ class SendCommandController {
       await sendMessage(_clientType);
       await Future.delayed(const Duration(milliseconds: commandDelay));
       await sendMessage('${Command.visitId.stringValue}:$visitId');
+      await Future.delayed(const Duration(milliseconds: commandDelay));
+      sendMessage(
+          '${Command.version.stringValue}:$_clientName:${_packageInfo.version}');
       await Future.delayed(const Duration(milliseconds: commandDelay));
       Logger.log('Start listening...');
       onConnected();

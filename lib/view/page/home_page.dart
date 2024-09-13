@@ -9,6 +9,7 @@ import 'package:universal_socket/universal_socket.dart';
 
 import '../../controller/pop_up_controller.dart';
 import '../../controller/send_command_controller.dart';
+import '../../core/di/di_config.dart';
 import '../../core/utils/utils.dart';
 import '../../model/command.dart';
 import '../../model/header_command.dart';
@@ -22,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _sendCommandController = SendCommandController();
+  final _sendCommandController = getIt<SendCommandController>();
   static const String _kPortNameHome = 'UI';
   // static const String _kPortNameHeader = 'HEADER';
   final _receivePort = ReceivePort();
@@ -140,6 +141,7 @@ class _HomePageState extends State<HomePage> {
       case Command.unknown:
       case Command.visitId:
       case Command.dateTime:
+      case Command.version:
         break;
     }
   }
@@ -173,6 +175,7 @@ class _HomePageState extends State<HomePage> {
       case Command.unknown:
       case Command.token:
       case Command.visitId:
+      case Command.version:
         break;
     }
   }

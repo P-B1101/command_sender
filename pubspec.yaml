@@ -43,6 +43,8 @@ dependencies:
     git: https://github.com/P-B1101/universal_socket.git
   rxdart: ^0.28.0
   equatable: ^2.0.5
+  package_info_plus: ^8.0.2
+  get_it: ^7.7.0
 
 dev_dependencies:
   flutter_test:
