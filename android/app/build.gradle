@@ -30,14 +30,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    ndkVersion = "25.1.8937393"
     namespace = "com.iclassifier.overlay_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.1.8937393"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_19
+        targetCompatibility = JavaVersion.VERSION_19
     }
 
     defaultConfig {

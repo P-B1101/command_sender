@@ -7,6 +7,8 @@ enum Command {
   stopRecording,
   rfId,
   version,
+  startStatus,
+  stopStatus,
   unknown;
 
   String get stringValue => switch (this) {
@@ -18,6 +20,8 @@ enum Command {
         stopRecording => 'STOP_RECORDING',
         rfId => 'RFID',
         version => 'VERSION',
+        startStatus => 'START_STATUS',
+        stopStatus => 'STOP_STATUS',
         unknown => 'UNKNOWN',
       };
 
@@ -32,6 +36,8 @@ enum Command {
             if (value.startsWith('DATE_TIME')) return dateTime;
             if (value.startsWith('STANDBY')) return standby;
             if (value.startsWith('VERSION')) return version;
+            if (value.startsWith('START_STATUS')) return startStatus;
+            if (value.startsWith('STOP_STATUS')) return stopStatus;
             return unknown;
           }(),
       };

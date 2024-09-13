@@ -23,6 +23,8 @@ class MessangerChatHead extends StatefulWidget {
 class _MessangerChatHeadState extends State<MessangerChatHead> {
   final _startLoading = ValueNotifier<bool>(false);
   final _stopLoading = ValueNotifier<bool>(false);
+  final _startStatus = ValueNotifier<bool>(false);
+  final _stopStatus = ValueNotifier<bool>(false);
   static const String _kPortNameHome = 'UI';
   // static const String _kPortNameHeader = 'HEADER';
   // final _receivePort = ReceivePort();
@@ -35,7 +37,6 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   final _defaultSize = const Size(411, 800);
   final _defaultPosition = const OverlayPosition(0, 24);
   bool _showContent = true;
-  bool _standBy = false;
 
   @override
   void initState() {
@@ -48,6 +49,8 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
     _startLoading.dispose();
     _stopLoading.dispose();
     _controller.close();
+    _startStatus.dispose();
+    _stopStatus.dispose();
     super.dispose();
   }
 
@@ -72,12 +75,16 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                     top: _isOpen ? 0 : _topPadding,
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _startLoading,
-                      builder: (context, value, child) => _ButtonWidget(
-                        isEnable: _standBy,
-                        isLoading: value,
-                        size: _childButtonSize,
-                        type: ButtonType.startRecording,
-                        onTap: _onStartRecording,
+                      builder: (context, value, child) =>
+                          ValueListenableBuilder<bool>(
+                        valueListenable: _startStatus,
+                        builder: (context, status, child) => _ButtonWidget(
+                          isEnable: status,
+                          isLoading: value,
+                          size: _childButtonSize,
+                          type: ButtonType.startRecording,
+                          onTap: _onStartRecording,
+                        ),
                       ),
                     ),
                   ),
@@ -88,12 +95,16 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                     top: _isOpen ? _childButtonSize + 8 : _topPadding,
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _stopLoading,
-                      builder: (context, value, child) => _ButtonWidget(
-                        isEnable: _standBy,
-                        isLoading: value,
-                        size: _childButtonSize,
-                        type: ButtonType.stopRecording,
-                        onTap: _onStopRecording,
+                      builder: (context, value, child) =>
+                          ValueListenableBuilder<bool>(
+                        valueListenable: _stopStatus,
+                        builder: (context, status, child) => _ButtonWidget(
+                          isEnable: status,
+                          isLoading: value,
+                          size: _childButtonSize,
+                          type: ButtonType.stopRecording,
+                          onTap: _onStopRecording,
+                        ),
                       ),
                     ),
                   ),
@@ -173,8 +184,17 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.unknown:
         break;
       case HeaderCommand.standby:
-        _standBy = message.split(':')[1] == 'true';
-        setState(() {});
+        final isStandBy = message.split(':')[1] == 'true';
+        _startStatus.value = isStandBy;
+        _stopStatus.value = isStandBy;
+        break;
+      case HeaderCommand.startStatus:
+        final isStandBy = message.split(':')[1] == 'true';
+        _startStatus.value = isStandBy;
+        break;
+      case HeaderCommand.stopStatus:
+        final isStandBy = message.split(':')[1] == 'true';
+        _stopStatus.value = isStandBy;
         break;
     }
   }

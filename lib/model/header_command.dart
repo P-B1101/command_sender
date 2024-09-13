@@ -6,6 +6,8 @@ enum HeaderCommand {
   stopRecordingLoading,
   stopRecordingDone,
   standby,
+  startStatus,
+  stopStatus,
   unknown;
 
   String get stringValue => switch (this) {
@@ -16,6 +18,8 @@ enum HeaderCommand {
         stopRecordingLoading => 'STOP_RECORDING_LOADING',
         stopRecordingDone => 'STOP_RECORDING_DONE',
         standby => 'STANDBY',
+        startStatus => 'START_STATUS',
+        stopStatus => 'STOP_STATUS',
         unknown => 'UNKNOWN',
       };
 
@@ -29,6 +33,8 @@ enum HeaderCommand {
             if (value.startsWith('RFID')) return rfId;
             if (value.startsWith('SIZE')) return size;
             if (value.startsWith('STANDBY')) return standby;
+            if (value.startsWith('START_STATUS')) return startStatus;
+            if (value.startsWith('STOP_STATUS')) return stopStatus;
             return unknown;
           }(),
       };

@@ -26,4 +26,25 @@ class StringCommunication extends Communication {
     if (newTemp == 'false') return false;
     return null;
   }
+
+
+    bool? get getStartStatus {
+    if (getCommand != Command.startStatus) return null;
+    final temp = data.split(':');
+    if (temp.length != 2) return null;
+    final newTemp = temp[1].toLowerCase();
+    if (newTemp == 'true') return true;
+    if (newTemp == 'false') return false;
+    return null;
+  }
+
+      bool? get getStopStatus {
+    if (getCommand != Command.stopStatus) return null;
+    final temp = data.split(':');
+    if (temp.length != 2) return null;
+    final newTemp = temp[1].toLowerCase();
+    if (newTemp == 'true') return true;
+    if (newTemp == 'false') return false;
+    return null;
+  }
 }

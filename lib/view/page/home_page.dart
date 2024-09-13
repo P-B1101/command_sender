@@ -142,6 +142,8 @@ class _HomePageState extends State<HomePage> {
       case Command.visitId:
       case Command.dateTime:
       case Command.version:
+      case Command.startStatus:
+      case Command.stopStatus:
         break;
     }
   }
@@ -167,15 +169,24 @@ class _HomePageState extends State<HomePage> {
             '${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.dateTime:
-        final nowDate = DateTime.now().toLocal();
-        final now = nowDate.millisecondsSinceEpoch ~/ 1000;
-        await _sendCommandController.sendStringCommand(
-            '${Command.dateTime.stringValue}:$now:${nowDate.timeZoneName}:${nowDate.timeZoneOffset.inMinutes}');
+        await _sendCommandController.sendStringCommand(getDateTimeCommand);
         break;
-      case Command.unknown:
+      case Command.startStatus:
+        final status = message.getStartStatus;
+        if (status == null) break;
+        await _sendStringCommand(
+            '${HeaderCommand.startStatus.stringValue}:$status');
+        break;
+      case Command.stopStatus:
+        final status = message.getStopStatus;
+        if (status == null) break;
+        await _sendStringCommand(
+            '${HeaderCommand.stopStatus.stringValue}:$status');
+        break;
       case Command.token:
       case Command.visitId:
       case Command.version:
+      case Command.unknown:
         break;
     }
   }
@@ -243,5 +254,18 @@ class _HomePageState extends State<HomePage> {
   static void _handleMessage(String message) async {
     if (_controller.isClosed) return;
     _controller.add(message);
+  }
+
+  String get getDateTimeCommand {
+    final nowDate = DateTime.now().toLocal();
+    final now = nowDate.millisecondsSinceEpoch ~/ 1000;
+    final config = <String, String>{
+      'time': now.toString(),
+      'timeZoneName': nowDate.timeZoneName,
+      'timeZoneOffset': nowDate.timeZoneOffset.inMinutes.toString(),
+    };
+    return '${Command.dateTime.stringValue}:${config.values.length}:${config.entries.map(
+          (e) => '${e.key}:${e.value}',
+        ).join(':')}';
   }
 }

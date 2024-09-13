@@ -111,11 +111,10 @@ class SendCommandController {
       await Future.delayed(const Duration(milliseconds: commandDelay));
       await sendMessage('${Command.visitId.stringValue}:$visitId');
       await Future.delayed(const Duration(milliseconds: commandDelay));
-      sendMessage(
-          '${Command.version.stringValue}:$_clientName:${_packageInfo.version}');
-      await Future.delayed(const Duration(milliseconds: commandDelay));
       Logger.log('Start listening...');
       onConnected();
+      sendMessage(
+          '${Command.version.stringValue}:$_clientName:${_packageInfo.version}');
     } catch (error) {
       Logger.log(error);
     }
