@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 enum ButtonType {
   startRecording,
-  stopRecording;
+  stopRecording,
+  cancelRecording;
 
   Color get toColor => switch (this) {
-        ButtonType.startRecording => Colors.green,
-        ButtonType.stopRecording => Colors.red,
+        startRecording => Colors.green,
+        stopRecording => Colors.red,
+        cancelRecording => Colors.orange,
       };
 
   String get toStringValue => switch (this) {
-        ButtonType.startRecording => 'STRT',
-        ButtonType.stopRecording => 'STOP'
+        startRecording => 'STRT',
+        stopRecording => 'STOP',
+        cancelRecording => 'CANCEL',
       };
 }

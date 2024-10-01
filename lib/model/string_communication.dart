@@ -27,8 +27,7 @@ class StringCommunication extends Communication {
     return null;
   }
 
-
-    bool? get getStartStatus {
+  bool? get getStartStatus {
     if (getCommand != Command.startStatus) return null;
     final temp = data.split(':');
     if (temp.length != 2) return null;
@@ -38,8 +37,18 @@ class StringCommunication extends Communication {
     return null;
   }
 
-      bool? get getStopStatus {
+  bool? get getStopStatus {
     if (getCommand != Command.stopStatus) return null;
+    final temp = data.split(':');
+    if (temp.length != 2) return null;
+    final newTemp = temp[1].toLowerCase();
+    if (newTemp == 'true') return true;
+    if (newTemp == 'false') return false;
+    return null;
+  }
+
+  bool? get getCancelStatus {
+    if (getCommand != Command.cancelStatus) return null;
     final temp = data.split(':');
     if (temp.length != 2) return null;
     final newTemp = temp[1].toLowerCase();

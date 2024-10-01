@@ -23,8 +23,10 @@ class MessangerChatHead extends StatefulWidget {
 class _MessangerChatHeadState extends State<MessangerChatHead> {
   final _startLoading = ValueNotifier<bool>(false);
   final _stopLoading = ValueNotifier<bool>(false);
+  final _cancelLoading = ValueNotifier<bool>(false);
   final _startStatus = ValueNotifier<bool>(false);
   final _stopStatus = ValueNotifier<bool>(false);
+  final _cancelStatus = ValueNotifier<bool>(false);
   static const String _kPortNameHome = 'UI';
   // static const String _kPortNameHeader = 'HEADER';
   // final _receivePort = ReceivePort();
@@ -48,9 +50,11 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   void dispose() {
     _startLoading.dispose();
     _stopLoading.dispose();
+    _cancelLoading.dispose();
     _controller.close();
     _startStatus.dispose();
     _stopStatus.dispose();
+    _cancelStatus.dispose();
     super.dispose();
   }
 
@@ -71,12 +75,11 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                   AnimatedPositionedDirectional(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.ease,
-                    end: _isOpen ? _buttonSize + 12 : -16,
+                    end: _isOpen ? _buttonSize - 8 : -16,
                     top: _isOpen ? 0 : _topPadding,
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _startLoading,
-                      builder: (context, value, child) =>
-                          ValueListenableBuilder<bool>(
+                      builder: (context, value, child) => ValueListenableBuilder<bool>(
                         valueListenable: _startStatus,
                         builder: (context, status, child) => _ButtonWidget(
                           isEnable: status,
@@ -92,11 +95,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.ease,
                     end: _isOpen ? _buttonSize + 12 : -16,
-                    top: _isOpen ? _childButtonSize + 8 : _topPadding,
+                    top: _isOpen ? _childButtonSize : _topPadding,
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _stopLoading,
-                      builder: (context, value, child) =>
-                          ValueListenableBuilder<bool>(
+                      builder: (context, value, child) => ValueListenableBuilder<bool>(
                         valueListenable: _stopStatus,
                         builder: (context, status, child) => _ButtonWidget(
                           isEnable: status,
@@ -104,6 +106,25 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
                           size: _childButtonSize,
                           type: ButtonType.stopRecording,
                           onTap: _onStopRecording,
+                        ),
+                      ),
+                    ),
+                  ),
+                  AnimatedPositionedDirectional(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                    end: _isOpen ? _buttonSize - 8 : -16,
+                    top: _isOpen ? (_childButtonSize * 2) : _topPadding,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _cancelLoading,
+                      builder: (context, value, child) => ValueListenableBuilder<bool>(
+                        valueListenable: _cancelStatus,
+                        builder: (context, status, child) => _ButtonWidget(
+                          isEnable: status,
+                          isLoading: value,
+                          size: _childButtonSize,
+                          type: ButtonType.cancelRecording,
+                          onTap: _onCancelRecording,
                         ),
                       ),
                     ),
@@ -178,6 +199,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.stopRecordingDone:
         _stopLoading.value = false;
         break;
+      case HeaderCommand.cancelRecordingLoading:
+        _cancelLoading.value = true;
+      case HeaderCommand.cancelRecordingDone:
+        _cancelLoading.value = false;
       case HeaderCommand.rfId:
         _rfId = message.split(':')[1];
         break;
@@ -187,6 +212,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
         final isStandBy = message.split(':')[1] == 'true';
         _startStatus.value = isStandBy;
         _stopStatus.value = isStandBy;
+        _cancelStatus.value = isStandBy;
         break;
       case HeaderCommand.startStatus:
         final isStandBy = message.split(':')[1] == 'true';
@@ -195,6 +221,10 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       case HeaderCommand.stopStatus:
         final isStandBy = message.split(':')[1] == 'true';
         _stopStatus.value = isStandBy;
+        break;
+      case HeaderCommand.cancelStatus:
+        final isStandBy = message.split(':')[1] == 'true';
+        _cancelStatus.value = isStandBy;
         break;
     }
   }
@@ -205,12 +235,12 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       if (!_isOpen) {
         _startLoading.value = false;
         _stopLoading.value = false;
+        _cancelLoading.value = false;
       }
     });
   }
 
-  Future<void> _sendCommand(Command command) =>
-      _sendStringCommand(command.stringValue);
+  Future<void> _sendCommand(Command command) => _sendStringCommand(command.stringValue);
 
   Future<void> _sendStringCommand(String command) async {
     // await FlutterOverlayWindow.shareData(command);
@@ -256,13 +286,16 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
       _showContent = true;
     });
     if (cowAndRFId?.serialize == null) return;
-    await _sendStringCommand(
-        '${Command.startRecording.stringValue}:${cowAndRFId!.serialize}');
+    await _sendStringCommand('${Command.startRecording.stringValue}:${cowAndRFId!.serialize}');
     _rfId = null;
   }
 
   void _onStopRecording() {
     _sendCommand(Command.stopRecording);
+  }
+
+  void _onCancelRecording() {
+    _sendCommand(Command.cancelRecording);
   }
 
   void _handleMessage(String message) async {
@@ -273,7 +306,7 @@ class _MessangerChatHeadState extends State<MessangerChatHead> {
   double get _buttonSize => 56;
   double get _childButtonSize => 48;
   double get _startPadding => 8;
-  double get _topPadding => 24;
+  double get _topPadding => 45;
 }
 
 class _ButtonWidget extends StatelessWidget {
@@ -331,7 +364,7 @@ class _ButtonWidget extends StatelessWidget {
                           ? const CircularLoadingWidget()
                           : Text(
                               type.toStringValue,
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
                             ),
                     ),
                   ),

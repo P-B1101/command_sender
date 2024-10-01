@@ -116,9 +116,7 @@ class _HomePageState extends State<HomePage> {
     final visitId = await PopUpController.showVisitIdPopup(context);
     if (visitId == null) return;
     await _sendCommandController.connect(visitId, () {
-      _sendCommandController
-          .connectionStream()
-          .listen(_listenForSocketConnection);
+      _sendCommandController.connectionStream().listen(_listenForSocketConnection);
       _sendCommandController.listenForCommand().listen(_listenToSocket);
     });
   }
@@ -135,6 +133,10 @@ class _HomePageState extends State<HomePage> {
         await _sendCommandController.sendCommand(command);
         await _sendCommand(HeaderCommand.stopRecordingLoading);
         break;
+      case Command.cancelRecording:
+        await _sendCommandController.sendCommand(command);
+        await _sendCommand(HeaderCommand.cancelRecordingLoading);
+        break;
       case Command.standby:
       case Command.rfId:
       case Command.token:
@@ -144,6 +146,7 @@ class _HomePageState extends State<HomePage> {
       case Command.version:
       case Command.startStatus:
       case Command.stopStatus:
+      case Command.cancelStatus:
         break;
     }
   }
@@ -157,6 +160,9 @@ class _HomePageState extends State<HomePage> {
       case Command.stopRecording:
         await _sendCommand(HeaderCommand.stopRecordingDone);
         break;
+      case Command.cancelRecording:
+        await _sendCommand(HeaderCommand.cancelRecordingDone);
+        break;
       case Command.rfId:
         final rfId = message.getRFId;
         if (rfId == null) break;
@@ -165,8 +171,7 @@ class _HomePageState extends State<HomePage> {
       case Command.standby:
         final standby = message.getStandby;
         if (standby == null) break;
-        await _sendStringCommand(
-            '${HeaderCommand.standby.stringValue}:$standby');
+        await _sendStringCommand('${HeaderCommand.standby.stringValue}:$standby');
         break;
       case Command.dateTime:
         await _sendCommandController.sendStringCommand(getDateTimeCommand);
@@ -174,14 +179,17 @@ class _HomePageState extends State<HomePage> {
       case Command.startStatus:
         final status = message.getStartStatus;
         if (status == null) break;
-        await _sendStringCommand(
-            '${HeaderCommand.startStatus.stringValue}:$status');
+        await _sendStringCommand('${HeaderCommand.startStatus.stringValue}:$status');
         break;
       case Command.stopStatus:
         final status = message.getStopStatus;
         if (status == null) break;
-        await _sendStringCommand(
-            '${HeaderCommand.stopStatus.stringValue}:$status');
+        await _sendStringCommand('${HeaderCommand.stopStatus.stringValue}:$status');
+        break;
+      case Command.cancelStatus:
+        final status = message.getCancelStatus;
+        if (status == null) break;
+        await _sendStringCommand('${HeaderCommand.cancelStatus.stringValue}:$status');
         break;
       case Command.token:
       case Command.visitId:
@@ -197,8 +205,7 @@ class _HomePageState extends State<HomePage> {
     if (!isConnected) await FlutterOverlayWindow.closeOverlay();
   }
 
-  Future<void> _sendCommand(HeaderCommand command) =>
-      _sendStringCommand(command.stringValue);
+  Future<void> _sendCommand(HeaderCommand command) => _sendStringCommand(command.stringValue);
 
   Future<void> _sendStringCommand(String command) async {
     await FlutterOverlayWindow.shareData(command);
