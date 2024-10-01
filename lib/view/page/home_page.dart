@@ -258,7 +258,7 @@ class _HomePageState extends State<HomePage> {
 
   String get getDateTimeCommand {
     final nowDate = DateTime.now().toLocal();
-    final now = nowDate.millisecondsSinceEpoch ~/ 1000;
+    final now = nowDate.toUtc().millisecondsSinceEpoch ~/ 1000;
     final config = <String, String>{
       'time': now.toString(),
       'timeZoneName': nowDate.timeZoneName,
