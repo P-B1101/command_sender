@@ -13,7 +13,7 @@ const _clientType = 'ANDROID_INTERFACE';
 const _clientName = 'ANDROID_OVERLAY';
 // const _visitId = 'VISIT_ID:';
 
-const commandDelay = 1000;
+// const commandDelay = 1000;
 
 class SendCommandController {
   String _address = '';
@@ -108,9 +108,9 @@ class SendCommandController {
       }
       _listenToServer();
       await sendMessage(_clientType);
-      await Future.delayed(const Duration(milliseconds: commandDelay));
+      // await Future.delayed(const Duration(milliseconds: commandDelay));
       await sendMessage('${Command.visitId.stringValue}:$visitId');
-      await Future.delayed(const Duration(milliseconds: commandDelay));
+      // await Future.delayed(const Duration(milliseconds: commandDelay));
       Logger.log('Start listening...');
       onConnected();
       sendMessage(
