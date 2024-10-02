@@ -290,7 +290,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b4eab98639fb47b29bbeb1c19273e55646d04e98
+      resolved-ref: "6c4776a88e85f17beeae657c51ef9c1684f43e04"
       url: "https://github.com/P-B1101/universal_socket.git"
     source: git
     version: "0.0.1"
