@@ -55,8 +55,8 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             _titleWidget,
             const SizedBox(height: 16),
             _idInputWidget,
-            if (_hasRFID) const SizedBox(height: 16),
-            if (_hasRFID) _rfIdInputWidget,
+           const SizedBox(height: 16),
+            _rfIdInputWidget,
             const SizedBox(height: 8),
             _errorWidget,
             const SizedBox(height: 32),
@@ -75,7 +75,7 @@ class _CowIdInputPopupState extends State<CowIdInputPopup> {
             Positioned.fill(
               child: Center(
                 child: Text(
-                  'Enter Cow ID',
+                  'Cow ID & RFID',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
